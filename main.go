@@ -8,6 +8,7 @@ import (
 func main() {
 	fmt.Println("test")
 	fth.Bip()
-	fm := fth.NewForthMachine()
+	o := fth.NewOptions(32, 32, 4096)
+	fm := fth.NewForthMachine(o)
 	fmt.Println(fm)
 }
