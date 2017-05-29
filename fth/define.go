@@ -6,7 +6,6 @@ import (
 
 // put the defining colon in own file
 func (fm *ForthMachine) SetDef() {
-	fmt.Println("define colon")
 	def := NewBaseWord(":")
 	def.Imm(true)
 	fm.Add(def)
@@ -20,7 +19,6 @@ func (fm *ForthMachine) SetDef() {
 		newWord := NewBaseWord(name)
 		fm.current = newWord
 		fm.compile = true
-		fm.Add(newWord)
 		return
 	}
 	def.SetExec(defFunc)
@@ -30,6 +28,7 @@ func (fm *ForthMachine) SetDef() {
 	fm.Add(enddef)
 	enddefFunc := func() (e error) {
 		fmt.Println("end define")
+		fm.Add(fm.current)
 		fm.compile = false
 		return
 	}

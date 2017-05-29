@@ -39,11 +39,9 @@ type ForthMachine struct {
 	exit      bool
 
 	// state
+	raw     string
 	compile bool // true compiling / false intepreting
 	// text processing
-	raw     string
-	tokens  []string // list of parsed tokens
-	tokenp  int
 	current Word // current word that the machine is currently working on
 }
 
@@ -67,9 +65,7 @@ func (fm *ForthMachine) Words() {
 }
 
 func (fm *ForthMachine) NextToken() (s string) {
-	data := fm.tokens[fm.tokenp]
-	fm.tokenp++
-	return data
+	return
 }
 
 func (fm *ForthMachine) Run() (e error) {
@@ -87,7 +83,8 @@ func (fm *ForthMachine) Run() (e error) {
 		}
 		fm.GetLine()
 		fm.Process()
-		fmt.Println(fm.compile)
+		//		fmt.Println(fm.compile)
+		fmt.Println("ok")
 	}
 	return
 }

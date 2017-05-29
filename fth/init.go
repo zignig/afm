@@ -52,9 +52,6 @@ func (fm *ForthMachine) Init() {
 
 	debug.SetExec(debugFunc)
 
-	endDefine := NewBaseWord(";")
-	fm.Add(endDefine)
-
 	// bye
 	bye := NewBaseWord("bye")
 	fm.Add(bye)
