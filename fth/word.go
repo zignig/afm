@@ -1,22 +1,27 @@
 package fth
 
-import (
-	"fmt"
-)
+import ()
 
 // Base interface
+type execFunc func() (e error)
 
 type Word interface {
 	Name() (s string)
 	Do() (e error)
+	SetExec(f execFunc)
 }
 
 type BaseWord struct {
-	name  string
-	code  string
-	words []Word
-	count int
-	exec  func()
+	name      string
+	immediate bool
+	code      string
+	words     []Word
+	count     int
+	exec      execFunc
+}
+
+func (b *BaseWord) SetExec(f execFunc) {
+	b.exec = f
 }
 
 func (b *BaseWord) Name() (s string) {
@@ -24,9 +29,17 @@ func (b *BaseWord) Name() (s string) {
 }
 
 func (b *BaseWord) Do() (e error) {
-	fmt.Println("NOTHING HERE ", b.name)
+	// check if it has an internal GO function
 	if b.exec != nil {
 		b.exec()
+		return
 	}
 	return e
+}
+
+func NewBaseWord(name string) (w Word) {
+	b := &BaseWord{
+		name: name,
+	}
+	return b
 }

@@ -2,13 +2,11 @@ package main
 
 import (
 	"./fth"
-	"fmt"
 )
 
 func main() {
-	fmt.Println("test")
-	fth.Bip()
-	o := fth.NewOptions(32, 32, 4096)
-	fm := fth.NewForthMachine(o)
-	fmt.Println(fm)
+	options := fth.NewOptions("init", 32, 32, 4096)
+	fm := fth.NewForthMachine(options)
+	fm.Init()
+	fm.Run()
 }
