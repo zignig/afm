@@ -11,6 +11,8 @@ type Word interface {
 	Name() (s string)
 	Do() (e error)
 	SetExec(f execFunc)
+	IsImm() bool
+	Imm(bool)
 }
 
 type BaseWord struct {
@@ -20,6 +22,14 @@ type BaseWord struct {
 	words     []Word
 	count     int
 	exec      execFunc
+}
+
+func (b *BaseWord) Imm(i bool) {
+	b.immediate = i
+}
+
+func (b *BaseWord) IsImm() bool {
+	return b.immediate
 }
 
 func (b *BaseWord) SetExec(f execFunc) {

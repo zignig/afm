@@ -8,6 +8,7 @@ import (
 var helpText string = " this is a the start of a abstract forth machine"
 
 func (fm *ForthMachine) Init() {
+	fm.SetDef()
 	// the usual init work
 	init := NewBaseWord("init")
 	initTest := func() (e error) {
@@ -51,9 +52,6 @@ func (fm *ForthMachine) Init() {
 
 	debug.SetExec(debugFunc)
 
-	// define new word
-	define := NewBaseWord(":")
-	fm.Add(define)
 	endDefine := NewBaseWord(";")
 	fm.Add(endDefine)
 

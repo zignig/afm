@@ -38,6 +38,8 @@ type ForthMachine struct {
 	debug     bool
 	exit      bool
 
+	// state
+	compile bool // true compiling / false intepreting
 	// text processing
 	raw     string
 	tokens  []string // list of parsed tokens
@@ -64,6 +66,12 @@ func (fm *ForthMachine) Words() {
 	fm.d.Words()
 }
 
+func (fm *ForthMachine) NextToken() (s string) {
+	data := fm.tokens[fm.tokenp]
+	fm.tokenp++
+	return data
+}
+
 func (fm *ForthMachine) Run() (e error) {
 	fm.Words()
 	fmt.Printf("Starting on %s\n", fm.startword)
@@ -79,7 +87,7 @@ func (fm *ForthMachine) Run() (e error) {
 		}
 		fm.GetLine()
 		fm.Process()
+		fmt.Println(fm.compile)
 	}
-
 	return
 }

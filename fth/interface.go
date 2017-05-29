@@ -14,6 +14,7 @@ func (fm *ForthMachine) GetLine() {
 	val := strings.Fields(text)
 	fm.raw = text
 	fm.tokens = val
+	fm.tokenp = 0
 }
 
 func (fm *ForthMachine) Process() {
@@ -25,7 +26,15 @@ func (fm *ForthMachine) Process() {
 		if err != nil {
 			fmt.Println(j, "--", err)
 		} else {
-			w.Do()
+			if fm.compile {
+				if w.IsImm() {
+					fmt.Println("im function")
+					w.Do()
+				}
+				fmt.Println("do stuff with ", j)
+			} else {
+				w.Do()
+			}
 		}
 	}
 }
