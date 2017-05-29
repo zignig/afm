@@ -33,10 +33,13 @@ type ForthMachine struct {
 	dStack Stack
 	rStack Stack
 
+	prompt    string
 	startword string
 	debug     bool
 	exit      bool
 
+	// text processing
+	raw     string
 	tokens  []string // list of parsed tokens
 	tokenp  int
 	current Word // current word that the machine is currently working on
@@ -48,6 +51,7 @@ func NewForthMachine(o Options) (fm *ForthMachine) {
 		rStack:    NewBaseStack(o.rsize),
 		dStack:    NewBaseStack(o.dsize),
 		startword: o.startword,
+		prompt:    ">",
 	}
 	return fm
 }
@@ -73,16 +77,8 @@ func (fm *ForthMachine) Run() (e error) {
 		if fm.exit {
 			break
 		}
-		wl := GetLine()
-		for _, j := range wl {
-			w, e := fm.d.Search(j)
-			if fm.debug {
-				fmt.Println(w, e)
-			}
-			if e == nil {
-				w.Do()
-			}
-		}
+		fm.GetLine()
+		fm.Process()
 	}
 
 	return

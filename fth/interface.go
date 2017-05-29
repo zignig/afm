@@ -7,14 +7,25 @@ import (
 	"strings"
 )
 
-func GetLine() (words []string) {
+func (fm *ForthMachine) GetLine() {
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Print(">")
+	fmt.Print(fm.prompt)
 	text, _ := reader.ReadString('\n')
-	val := strings.Split(strings.TrimSpace(text), " ")
-	//	for i, j := range val {
-	//		fmt.Println(i, ">", j, "<")
-	//	}
-	fmt.Println(len(val))
-	return val
+	val := strings.Fields(text)
+	fm.raw = text
+	fm.tokens = val
+}
+
+func (fm *ForthMachine) Process() {
+	for i, j := range fm.tokens {
+		if fm.debug {
+			fmt.Println(i, j)
+		}
+		w, err := fm.d.Search(j)
+		if err != nil {
+			fmt.Println(j, "--", err)
+		} else {
+			w.Do()
+		}
+	}
 }

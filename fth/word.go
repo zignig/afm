@@ -1,6 +1,8 @@
 package fth
 
-import ()
+import (
+	"fmt"
+)
 
 // Base interface
 type execFunc func() (e error)
@@ -30,10 +32,12 @@ func (b *BaseWord) Name() (s string) {
 
 func (b *BaseWord) Do() (e error) {
 	// check if it has an internal GO function
+	b.count++
 	if b.exec != nil {
 		b.exec()
 		return
 	}
+	fmt.Println("interpret")
 	return e
 }
 
