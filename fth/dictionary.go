@@ -39,17 +39,16 @@ func (fd *ForthDictionary) Add(w Word) (e error) {
 }
 
 func (fd *ForthDictionary) Words() {
-	fmt.Println("WORDS")
 	var current *dictItem
 	current = fd.head
 	for {
 		if current == nil {
 			break
 		}
-		fmt.Println(current.value.Name())
+		fmt.Print(current.value.Name(), " ")
 		current = current.prev
 	}
-	fmt.Println("END WORDS")
+	fmt.Println()
 }
 
 func (fd *ForthDictionary) Search(name string) (w Word, e error) {
@@ -57,7 +56,7 @@ func (fd *ForthDictionary) Search(name string) (w Word, e error) {
 	current = fd.head
 	for {
 		if current == nil {
-			return nil, ErrEndDict
+			return nil, ErrWordNotFound
 		}
 		if current.name == name {
 			return current.value, nil

@@ -12,14 +12,16 @@ type Options struct {
 	rsize     int
 	dsize     int
 	mem       int
+	debug     bool
 }
 
-func NewOptions(startword string, rsize int, dsize int, mem int) (o Options) {
+func NewOptions(startword string, debug bool, rsize int, dsize int, mem int) (o Options) {
 	o = Options{
 		startword: startword,
 		rsize:     rsize,
 		dsize:     dsize,
 		mem:       mem,
+		debug:     debug,
 	}
 	return o
 }
@@ -32,6 +34,7 @@ type ForthMachine struct {
 	rStack Stack
 
 	startword string
+	debug     bool
 }
 
 func NewForthMachine(o Options) (fm *ForthMachine) {
@@ -54,6 +57,20 @@ func (fm *ForthMachine) Words() {
 
 func (fm *ForthMachine) Run() (e error) {
 	fm.Words()
+	for {
+		wl := GetLine()
+		for _, j := range wl {
+			fmt.Print(j, " : ")
+			w, e := fm.d.Search(j)
+			if fm.debug {
+				fmt.Println(w, e)
+			}
+			if e == nil {
+				w.Do()
+			}
+		}
+	}
+
 	fmt.Printf("Starting on %s\n", fm.startword)
 	w, err := fm.d.Search(fm.startword)
 	if err != nil {
