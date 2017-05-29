@@ -35,6 +35,11 @@ type ForthMachine struct {
 
 	startword string
 	debug     bool
+	exit      bool
+
+	tokens  []string // list of parsed tokens
+	tokenp  int
+	current Word // current word that the machine is currently working on
 }
 
 func NewForthMachine(o Options) (fm *ForthMachine) {
@@ -57,10 +62,19 @@ func (fm *ForthMachine) Words() {
 
 func (fm *ForthMachine) Run() (e error) {
 	fm.Words()
+	fmt.Printf("Starting on %s\n", fm.startword)
+	w, err := fm.d.Search(fm.startword)
+	if err != nil {
+		fmt.Println("boot error :", err)
+		return err
+	}
+	w.Do()
 	for {
+		if fm.exit {
+			break
+		}
 		wl := GetLine()
 		for _, j := range wl {
-			fmt.Print(j, " : ")
 			w, e := fm.d.Search(j)
 			if fm.debug {
 				fmt.Println(w, e)
@@ -71,12 +85,5 @@ func (fm *ForthMachine) Run() (e error) {
 		}
 	}
 
-	fmt.Printf("Starting on %s\n", fm.startword)
-	w, err := fm.d.Search(fm.startword)
-	if err != nil {
-		fmt.Println("boot error :", err)
-		return err
-	}
-	w.Do()
 	return
 }

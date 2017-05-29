@@ -12,8 +12,9 @@ func GetLine() (words []string) {
 	fmt.Print(">")
 	text, _ := reader.ReadString('\n')
 	val := strings.Split(strings.TrimSpace(text), " ")
-	for i, j := range val {
-		fmt.Println(i, ">", j, "<")
-	}
+	//	for i, j := range val {
+	//		fmt.Println(i, ">", j, "<")
+	//	}
+	fmt.Println(len(val))
 	return val
 }

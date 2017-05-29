@@ -5,6 +5,7 @@ import (
 )
 
 // initialization things
+var helpText string = " this is a the start of a abstract forth machine"
 
 func (fm *ForthMachine) Init() {
 	// the usual init work
@@ -29,6 +30,11 @@ func (fm *ForthMachine) Init() {
 	// help function
 	help := NewBaseWord("help")
 	fm.Add(help)
+	helpFunc := func() (e error) {
+		fmt.Println(helpText)
+		return
+	}
+	help.SetExec(helpFunc)
 
 	// debug function
 	debug := NewBaseWord("debug")
@@ -50,4 +56,13 @@ func (fm *ForthMachine) Init() {
 	fm.Add(define)
 	endDefine := NewBaseWord(";")
 	fm.Add(endDefine)
+
+	// bye
+	bye := NewBaseWord("bye")
+	fm.Add(bye)
+	byeFunc := func() (e error) {
+		fm.exit = true
+		return
+	}
+	bye.SetExec(byeFunc)
 }
