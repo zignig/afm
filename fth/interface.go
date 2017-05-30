@@ -33,10 +33,10 @@ func (fm *ForthMachine) Process() (err error) {
 		if empty {
 			return ErrNoMoreTokens
 		}
-		if debug {
-			fmt.Println(tok)
-		}
 		w, err := fm.d.Search(tok)
+		if debug {
+			fmt.Println(w, err, tok)
+		}
 		if err != nil {
 			fmt.Println(tok, "--", err)
 			fm.compile = false

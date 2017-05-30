@@ -31,6 +31,15 @@ func (fm *ForthMachine) Init() {
 	}
 	words.SetExec(wd)
 
+	// dump code
+	dump := NewBaseWord("dump")
+	fm.Add(dump)
+	dmp := func() (e error) {
+		fm.d.dump()
+		return
+	}
+	dump.SetExec(dmp)
+
 	// help function
 	help := NewBaseWord("help")
 	fm.Add(help)

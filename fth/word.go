@@ -13,6 +13,7 @@ type Word interface {
 	Add(Word)
 	SetExec(f execFunc)
 	SetCode(code string)
+	Dump() (code string)
 	IsImm() bool
 	Imm(bool)
 }
@@ -27,13 +28,22 @@ type BaseWord struct {
 }
 
 func (b *BaseWord) String() string {
-	s := b.Name() + "\n"
+	s := b.Name()
+	if b.immediate {
+		s += "(IMM)"
+	}
+	s += "\ncode > " + b.code
+	s += "\n"
 	if len(b.words) > 0 {
-		for i, j := range b.words {
-			s += fmt.Sprintf(" %v : %s\n", i, j)
+		for _, j := range b.words {
+			s += fmt.Sprintf("%v ", j.Name())
 		}
 	}
 	return s
+}
+
+func (b *BaseWord) Dump() (code string) {
+	return b.code
 }
 
 func (b *BaseWord) SetCode(code string) {
@@ -67,8 +77,7 @@ func (b *BaseWord) Do() (e error) {
 		b.exec()
 		return
 	}
-	fmt.Println("run")
-	fmt.Println(b)
+	fmt.Println("runing >", b.name)
 	return e
 }
 

@@ -38,6 +38,19 @@ func (fd *ForthDictionary) Add(w Word) (e error) {
 	return
 }
 
+func (fd *ForthDictionary) dump() {
+	var current *dictItem
+	current = fd.head
+	for {
+		if current == nil {
+			break
+		}
+		fmt.Println(current.value.Dump())
+		current = current.prev
+	}
+	fmt.Println()
+}
+
 func (fd *ForthDictionary) Words() {
 	var current *dictItem
 	current = fd.head

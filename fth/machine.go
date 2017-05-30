@@ -82,7 +82,6 @@ func (fm *ForthMachine) Run() (e error) {
 		}
 		fm.GetLine()
 		fm.Process()
-		//		fmt.Println(fm.compile)
 		fmt.Println("ok")
 	}
 	return
