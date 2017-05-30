@@ -25,15 +25,17 @@ func NewCompleter(fm *ForthMachine) (c *Completer) {
 }
 
 func (c *Completer) Print(prefix string, level int, buf *bytes.Buffer) {
+	fmt.Println(prefix, level, buf)
 }
 
 func (c *Completer) Do(line []rune, pos int) (newLine [][]rune, length int) {
-	fmt.Println(c.fm.d.List())
-	fmt.Println(line, pos)
+	list := c.fm.d.Find(line, pos)
+	fmt.Println(list)
 	return
 }
 
 func (c *Completer) GetName() []rune {
+	fmt.Println(">>GetName")
 	return make([]rune, 0)
 }
 

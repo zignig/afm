@@ -4,6 +4,7 @@ package fth
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 var (
@@ -55,15 +56,18 @@ func (fd *ForthDictionary) dump() {
 	fmt.Println()
 }
 
-func (fd *ForthDictionary) List() (l []string) {
+func (fd *ForthDictionary) Find(line []rune, pos int) (l []string) {
 	var current *dictItem
 	current = fd.head
+	str := string(line)
 	list := make([]string, 0)
 	for {
 		if current == nil {
 			break
 		}
-		list = append(list, current.name)
+		if strings.HasPrefix(current.name, str) {
+			list = append(list, current.name)
+		}
 		current = current.prev
 	}
 	return list

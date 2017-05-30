@@ -72,7 +72,7 @@ func (fm *ForthMachine) Words() {
 	fm.d.Words()
 }
 
-func (fm *ForthMachine) Run() (e error) {
+func (fm *ForthMachine) Run(exit chan bool) (e error) {
 	fm.Words()
 	fmt.Printf("Starting on %s\n", fm.startword)
 	w, err := fm.d.Search(fm.startword)
@@ -83,6 +83,7 @@ func (fm *ForthMachine) Run() (e error) {
 	w.Do()
 	for {
 		if fm.exit {
+			exit <- true
 			break
 		}
 		select {

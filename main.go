@@ -7,13 +7,24 @@ import (
 )
 
 func main() {
+	var exit chan bool
 	options := fth.NewOptions("init", true, 32, 32, 4096)
 	fm := fth.NewForthMachine(options)
 	fm.Init()
-	go fm.Run()
+	go fm.Run(exit)
 	go Console(fm)
-	var test chan bool
-	<-test
+	<-exit
+	fmt.Println("EXITING")
+}
+func filterInput(r rune) (rune, bool) {
+	switch r {
+	// block CtrlZ feature
+	case readline.CharCtrlZ:
+		return r, false
+		//	case readline.CharInterrupt:
+		////		return r, false
+	}
+	return r, true
 }
 
 func Console(fm *fth.ForthMachine) {
@@ -22,6 +33,7 @@ func Console(fm *fth.ForthMachine) {
 		HistoryFile:            "./history",
 		AutoComplete:           fm.Complete,
 		DisableAutoSaveHistory: true,
+		FuncFilterInputRune:    filterInput,
 	})
 	if err != nil {
 		panic(err)

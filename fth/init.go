@@ -68,6 +68,7 @@ func (fm *ForthMachine) Init() {
 	bye := NewBaseWord("bye")
 	fm.Add(bye)
 	byeFunc := func() (e error) {
+		fmt.Println("EXIT SET")
 		fm.exit = true
 		return
 	}
