@@ -33,7 +33,7 @@ func (fm *ForthMachine) Process() (err error) {
 		if empty {
 			return ErrNoMoreTokens
 		}
-		if fm.debug {
+		if debug {
 			fmt.Println(tok)
 		}
 		w, err := fm.d.Search(tok)
@@ -51,7 +51,9 @@ func (fm *ForthMachine) Process() (err error) {
 					}
 				}
 				fmt.Println("compile", fm.current, tok, w)
-				fm.current.Add(w)
+				if fm.current != nil {
+					fm.current.Add(w)
+				}
 			} else {
 				err = w.Do()
 				if err != nil {

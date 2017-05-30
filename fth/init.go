@@ -8,7 +8,10 @@ import (
 var helpText string = " this is a the start of a abstract forth machine"
 
 func (fm *ForthMachine) Init() {
+	// base colon and semi colon defs
 	fm.SetDef()
+	// extra functions
+	fm.Extra()
 	// the usual init work
 	init := NewBaseWord("init")
 	initTest := func() (e error) {
@@ -38,11 +41,11 @@ func (fm *ForthMachine) Init() {
 	help.SetExec(helpFunc)
 
 	// debug function
-	debug := NewBaseWord("debug")
-	fm.Add(debug)
+	debugf := NewBaseWord("debug")
+	fm.Add(debugf)
 	debugFunc := func() (e error) {
-		fm.debug = !fm.debug
-		if fm.debug {
+		debug = !debug
+		if debug {
 			fmt.Println("debug on")
 		} else {
 			fmt.Println("debug off")
@@ -50,7 +53,7 @@ func (fm *ForthMachine) Init() {
 		return
 	}
 
-	debug.SetExec(debugFunc)
+	debugf.SetExec(debugFunc)
 
 	// bye
 	bye := NewBaseWord("bye")

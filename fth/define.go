@@ -30,7 +30,11 @@ func (fm *ForthMachine) SetDef() {
 	fm.Add(enddef)
 	enddefFunc := func() (e error) {
 		fmt.Println("end define")
-		fm.Add(fm.current)
+		if fm.current != nil {
+			fm.Add(fm.current)
+			fm.current.SetCode(fm.raw)
+		}
+		fm.current = nil
 		fm.compile = false
 		return
 	}

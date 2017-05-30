@@ -45,7 +45,11 @@ func (fd *ForthDictionary) Words() {
 		if current == nil {
 			break
 		}
-		fmt.Print(current.value.Name(), " ")
+		if debug {
+			fmt.Println(current.value)
+		} else {
+			fmt.Print(current.value.Name(), " ")
+		}
 		current = current.prev
 	}
 	fmt.Println()

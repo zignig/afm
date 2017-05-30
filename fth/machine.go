@@ -27,6 +27,8 @@ func NewOptions(startword string, debug bool, rsize int, dsize int, mem int) (o 
 	return o
 }
 
+var debug bool
+
 type ForthMachine struct {
 	Input  io.Writer
 	Output io.Reader
@@ -36,7 +38,6 @@ type ForthMachine struct {
 
 	prompt    string
 	startword string
-	debug     bool
 	exit      bool
 
 	// state

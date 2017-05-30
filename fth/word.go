@@ -12,6 +12,7 @@ type Word interface {
 	Do() (e error)
 	Add(Word)
 	SetExec(f execFunc)
+	SetCode(code string)
 	IsImm() bool
 	Imm(bool)
 }
@@ -23,6 +24,20 @@ type BaseWord struct {
 	words     []Word
 	count     int
 	exec      execFunc
+}
+
+func (b *BaseWord) String() string {
+	s := b.Name() + "\n"
+	if len(b.words) > 0 {
+		for i, j := range b.words {
+			s += fmt.Sprintf(" %v : %s\n", i, j)
+		}
+	}
+	return s
+}
+
+func (b *BaseWord) SetCode(code string) {
+	b.code = code
 }
 
 func (b *BaseWord) Imm(i bool) {
