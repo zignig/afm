@@ -40,6 +40,8 @@ type ForthMachine struct {
 	startword string
 	exit      bool
 
+	// completer
+	Complete *Completer
 	// state
 	raw     string
 	scanner *bufio.Scanner
@@ -57,6 +59,7 @@ func NewForthMachine(o Options) (fm *ForthMachine) {
 		startword: o.startword,
 		prompt:    ">",
 	}
+	fm.Complete = NewCompleter(fm)
 	// record the tail of the dictionary
 	return fm
 }
@@ -85,9 +88,9 @@ func (fm *ForthMachine) Run() (e error) {
 		select {
 		case line := <-fm.Input:
 			fmt.Println(line)
+			fm.GetLine(line)
+			fm.Process()
 		}
-		fm.GetLine(line)
-		fm.Process()
 		fmt.Println("ok")
 	}
 	return

@@ -7,19 +7,20 @@ import (
 )
 
 func main() {
-	go Console()
-	var test chan bool
-	<-test
 	options := fth.NewOptions("init", true, 32, 32, 4096)
 	fm := fth.NewForthMachine(options)
 	fm.Init()
-	fm.Run()
+	go fm.Run()
+	go Console(fm)
+	var test chan bool
+	<-test
 }
 
-func Console() {
+func Console(fm *fth.ForthMachine) {
 	rl, err := readline.NewEx(&readline.Config{
 		Prompt:                 "> ",
 		HistoryFile:            "./history",
+		AutoComplete:           fm.Complete,
 		DisableAutoSaveHistory: true,
 	})
 	if err != nil {
@@ -28,12 +29,12 @@ func Console() {
 	}
 	defer rl.Close()
 	for {
-		fmt.Println(rl)
 		line, err := rl.Readline()
 		if err != nil {
 			return
 		}
 		fmt.Println(line)
 		rl.SaveHistory(line)
+		fm.Input <- line
 	}
 }

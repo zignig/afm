@@ -55,6 +55,20 @@ func (fd *ForthDictionary) dump() {
 	fmt.Println()
 }
 
+func (fd *ForthDictionary) List() (l []string) {
+	var current *dictItem
+	current = fd.head
+	list := make([]string, 0)
+	for {
+		if current == nil {
+			break
+		}
+		list = append(list, current.name)
+		current = current.prev
+	}
+	return list
+}
+
 func (fd *ForthDictionary) Words() {
 	var current *dictItem
 	current = fd.head
