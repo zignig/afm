@@ -2,9 +2,14 @@ package fth
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
+)
+
+var (
+	ErrNoMoreTokens = errors.New("no more tokens")
 )
 
 func (fm *ForthMachine) GetLine() {
@@ -12,29 +17,46 @@ func (fm *ForthMachine) GetLine() {
 	fmt.Print(fm.prompt)
 	text, _ := reader.ReadString('\n')
 	fm.raw = text
+	fm.scanner = bufio.NewScanner(strings.NewReader(text))
+	fm.scanner.Split(bufio.ScanWords)
 }
 
-func (fm *ForthMachine) Process() {
-	scanner := bufio.NewScanner(strings.NewReader(fm.raw))
-	scanner.Split(bufio.ScanWords)
-	for scanner.Scan() {
-		j := scanner.Text()
-		if fm.debug {
-			fmt.Println(j)
+func (fm *ForthMachine) NextToken() (s string, empty bool) {
+	empty = !fm.scanner.Scan()
+	s = fm.scanner.Text()
+	return s, empty
+}
+
+func (fm *ForthMachine) Process() (err error) {
+	for {
+		tok, empty := fm.NextToken()
+		if empty {
+			return ErrNoMoreTokens
 		}
-		w, err := fm.d.Search(j)
+		if fm.debug {
+			fmt.Println(tok)
+		}
+		w, err := fm.d.Search(tok)
 		if err != nil {
-			fmt.Println(j, "--", err)
+			fmt.Println(tok, "--", err)
 			fm.compile = false
+			return err
 		} else {
 			if fm.compile {
 				if w.IsImm() {
-					fmt.Println("im function")
-					w.Do()
+					fmt.Println("imm function ", w.Name())
+					err = w.Do()
+					if err != nil {
+						return err
+					}
 				}
-				fmt.Println("compile", j)
+				fmt.Println("compile", fm.current, tok, w)
+				fm.current.Add(w)
 			} else {
-				w.Do()
+				err = w.Do()
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

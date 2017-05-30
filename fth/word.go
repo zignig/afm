@@ -10,6 +10,7 @@ type execFunc func() (e error)
 type Word interface {
 	Name() (s string)
 	Do() (e error)
+	Add(Word)
 	SetExec(f execFunc)
 	IsImm() bool
 	Imm(bool)
@@ -40,6 +41,10 @@ func (b *BaseWord) Name() (s string) {
 	return b.name
 }
 
+func (b *BaseWord) Add(w Word) {
+	b.words = append(b.words, w)
+}
+
 func (b *BaseWord) Do() (e error) {
 	// check if it has an internal GO function
 	b.count++
@@ -47,13 +52,15 @@ func (b *BaseWord) Do() (e error) {
 		b.exec()
 		return
 	}
-	fmt.Println("interpret")
+	fmt.Println("run")
+	fmt.Println(b)
 	return e
 }
 
 func NewBaseWord(name string) (w Word) {
 	b := &BaseWord{
-		name: name,
+		name:  name,
+		words: make([]Word, 0),
 	}
 	return b
 }

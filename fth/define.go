@@ -13,8 +13,10 @@ func (fm *ForthMachine) SetDef() {
 	// the magic define function
 	defFunc := func() (e error) {
 		fmt.Println("in define")
-		fm.NextToken()         // chomp the colon
-		name := fm.NextToken() // grab the next colon
+		name, empty := fm.NextToken() // grab the next colon
+		if empty {
+			return ErrNoMoreTokens
+		}
 		fmt.Println("test bind >", name)
 		newWord := NewBaseWord(name)
 		fm.current = newWord

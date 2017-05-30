@@ -1,6 +1,7 @@
 package fth
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 )
@@ -40,6 +41,7 @@ type ForthMachine struct {
 
 	// state
 	raw     string
+	scanner *bufio.Scanner
 	compile bool // true compiling / false intepreting
 	// text processing
 	current Word // current word that the machine is currently working on
@@ -62,10 +64,6 @@ func (fm *ForthMachine) Add(w Word) (err error) {
 
 func (fm *ForthMachine) Words() {
 	fm.d.Words()
-}
-
-func (fm *ForthMachine) NextToken() (s string) {
-	return
 }
 
 func (fm *ForthMachine) Run() (e error) {
