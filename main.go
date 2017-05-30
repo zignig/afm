@@ -7,6 +7,16 @@ import (
 )
 
 func main() {
+	go Console()
+	var test chan bool
+	<-test
+	options := fth.NewOptions("init", true, 32, 32, 4096)
+	fm := fth.NewForthMachine(options)
+	fm.Init()
+	fm.Run()
+}
+
+func Console() {
 	rl, err := readline.NewEx(&readline.Config{
 		Prompt:                 "> ",
 		HistoryFile:            "./history",
@@ -26,8 +36,4 @@ func main() {
 		fmt.Println(line)
 		rl.SaveHistory(line)
 	}
-	options := fth.NewOptions("init", true, 32, 32, 4096)
-	fm := fth.NewForthMachine(options)
-	fm.Init()
-	fm.Run()
 }

@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -12,12 +11,9 @@ var (
 	ErrNoMoreTokens = errors.New("no more tokens")
 )
 
-func (fm *ForthMachine) GetLine() {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print(fm.prompt)
-	text, _ := reader.ReadString('\n')
-	fm.raw = text
-	fm.scanner = bufio.NewScanner(strings.NewReader(text))
+func (fm *ForthMachine) GetLine(line string) {
+	fm.raw = line
+	fm.scanner = bufio.NewScanner(strings.NewReader(line))
 	fm.scanner.Split(bufio.ScanWords)
 }
 

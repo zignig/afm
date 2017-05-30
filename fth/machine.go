@@ -30,7 +30,7 @@ func NewOptions(startword string, debug bool, rsize int, dsize int, mem int) (o 
 var debug bool
 
 type ForthMachine struct {
-	Input  io.Writer
+	Input  chan string
 	Output io.Reader
 	d      *ForthDictionary
 	dStack Stack
@@ -50,6 +50,7 @@ type ForthMachine struct {
 
 func NewForthMachine(o Options) (fm *ForthMachine) {
 	fm = &ForthMachine{
+		Input:     make(chan string, 10),
 		d:         NewForthDictionary(),
 		rStack:    NewBaseStack("rstack", o.rsize),
 		dStack:    NewBaseStack("dstack", o.dsize),
@@ -81,7 +82,11 @@ func (fm *ForthMachine) Run() (e error) {
 		if fm.exit {
 			break
 		}
-		fm.GetLine()
+		select {
+		case line := <-fm.Input:
+			fmt.Println(line)
+		}
+		fm.GetLine(line)
 		fm.Process()
 		fmt.Println("ok")
 	}
