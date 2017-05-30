@@ -6,6 +6,10 @@ import (
 
 // put the defining colon in own file
 func (fm *ForthMachine) SetDef() {
+	// return stack
+	popRstack := NewBaseWord("<r")
+	fm.Add(popRstack)
+
 	def := NewBaseWord(":")
 	def.Imm(true)
 	fm.Add(def)
@@ -33,6 +37,7 @@ func (fm *ForthMachine) SetDef() {
 		if fm.current != nil {
 			fm.Add(fm.current)
 			fm.current.SetCode(fm.raw)
+			fm.current.Add(popRstack)
 		}
 		fm.current = nil
 		fm.compile = false
