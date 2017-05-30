@@ -20,4 +20,16 @@ func (fm *ForthMachine) Extra() {
 		return
 	}
 	def.SetExec(defFunc)
+
+	pop := NewBaseWord(".")
+	fm.Add(pop)
+	popFunc := func() (e error) {
+		w, e := fm.dStack.Pop()
+		if e != nil {
+			return e
+		}
+		fmt.Println(w)
+		return nil
+	}
+	pop.SetExec(popFunc)
 }

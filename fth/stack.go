@@ -2,7 +2,13 @@ package fth
 
 // Stack, same kind of stack used for both
 import (
+	"errors"
 	"fmt"
+)
+
+var (
+	ErrStackFull  = errors.New("Stack Full")
+	ErrStackEmpty = errors.New("Stack Empty")
 )
 
 type Stack interface {
@@ -14,23 +20,37 @@ type Stack interface {
 // Actual Stack
 
 type BaseStack struct {
+	name  string
 	items []*Word
+	size  int
 }
 
-func NewBaseStack(size int) (bs *BaseStack) {
-	bs = &BaseStack{}
-	bs.items = make([]*Word, size)
+func NewBaseStack(name string, size int) (bs *BaseStack) {
+	bs = &BaseStack{
+		items: make([]*Word, size),
+		size:  size,
+		name:  name,
+	}
 	return bs
 }
 
 func (bs *BaseStack) Pop() (w *Word, e error) {
 	fmt.Println("Pop")
-	return w, e
+	if len(bs.items) > 0 {
+		w = bs.items[len(bs.items)-1]
+		bs.items = bs.items[:len(bs.items)-1]
+		return w, nil
+	}
+	return nil, ErrStackEmpty
 }
 
 func (bs *BaseStack) Push(w *Word) (e error) {
 	fmt.Println("Push")
-	return e
+	if len(bs.items) == bs.size {
+		return ErrStackFull
+	}
+	bs.items = append(bs.items, w)
+	return nil
 }
 
 func (bs *BaseStack) Depth() (d int) {

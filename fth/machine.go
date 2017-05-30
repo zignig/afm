@@ -51,8 +51,8 @@ type ForthMachine struct {
 func NewForthMachine(o Options) (fm *ForthMachine) {
 	fm = &ForthMachine{
 		d:         NewForthDictionary(),
-		rStack:    NewBaseStack(o.rsize),
-		dStack:    NewBaseStack(o.dsize),
+		rStack:    NewBaseStack("rstack", o.rsize),
+		dStack:    NewBaseStack("dstack", o.dsize),
 		startword: o.startword,
 		prompt:    ">",
 	}
