@@ -56,6 +56,7 @@ func NewForthMachine(o Options) (fm *ForthMachine) {
 		startword: o.startword,
 		prompt:    ">",
 	}
+	// record the tail of the dictionary
 	return fm
 }
 

@@ -14,12 +14,13 @@ var (
 type dictItem struct {
 	name  string
 	value Word
-	//next  *dictItem
-	prev *dictItem
+	next  *dictItem
+	prev  *dictItem
 }
 
 type ForthDictionary struct {
 	head *dictItem
+	stem *dictItem
 }
 
 func NewForthDictionary() (fd *ForthDictionary) {
@@ -45,7 +46,10 @@ func (fd *ForthDictionary) dump() {
 		if current == nil {
 			break
 		}
-		fmt.Println(current.value.Dump())
+		val := current.value.Dump()
+		if len(val) > 0 {
+			fmt.Print(val)
+		}
 		current = current.prev
 	}
 	fmt.Println()
