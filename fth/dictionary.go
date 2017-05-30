@@ -56,21 +56,21 @@ func (fd *ForthDictionary) dump() {
 	fmt.Println()
 }
 
-func (fd *ForthDictionary) Find(line []rune, pos int) (l []string) {
+func (fd *ForthDictionary) Find(line []rune, pos int) (newLine [][]rune, length int) {
 	var current *dictItem
 	current = fd.head
 	str := string(line)
-	list := make([]string, 0)
+	list := make([][]rune, 0)
 	for {
 		if current == nil {
 			break
 		}
 		if strings.HasPrefix(current.name, str) {
-			list = append(list, current.name)
+			list = append(list, []rune(current.name[pos:]))
 		}
 		current = current.prev
 	}
-	return list
+	return list, 0
 }
 
 func (fd *ForthDictionary) Words() {

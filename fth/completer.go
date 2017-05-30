@@ -1,16 +1,12 @@
 package fth
 
 import (
-	"bytes"
 	"fmt"
+	"strings"
 )
 
-type PrefixCompleterInterface interface {
-	Print(prefix string, level int, buf *bytes.Buffer)
+type AutoCompleter interface {
 	Do(line []rune, pos int) (newLine [][]rune, length int)
-	GetName() []rune
-	GetChildren() []PrefixCompleterInterface
-	SetChildren(children []PrefixCompleterInterface)
 }
 
 type Completer struct {
@@ -24,25 +20,13 @@ func NewCompleter(fm *ForthMachine) (c *Completer) {
 	return
 }
 
-func (c *Completer) Print(prefix string, level int, buf *bytes.Buffer) {
-	fmt.Println(prefix, level, buf)
-}
-
 func (c *Completer) Do(line []rune, pos int) (newLine [][]rune, length int) {
-	list := c.fm.d.Find(line, pos)
-	fmt.Println(list)
-	return
-}
-
-func (c *Completer) GetName() []rune {
-	fmt.Println(">>GetName")
-	return make([]rune, 0)
-}
-
-func (c *Completer) GetChildren() []PrefixCompleterInterface {
-	return make([]PrefixCompleterInterface, 0)
-}
-
-func (c *Completer) SetChildren(children []PrefixCompleterInterface) {
+	typedSoFar := string(line[:pos])
+	spacePos := strings.IndexByte(typedSoFar, ' ')
+	entrim := line[spacePos+1:]
+	if spacePos > 0 {
+		fmt.Printf(">>%v<<\n", string(entrim))
+	}
+	newLine, length = c.fm.d.Find(entrim, pos)
 	return
 }
