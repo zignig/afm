@@ -26,12 +26,16 @@ func (fm *ForthMachine) NextToken() (s string, empty bool) {
 
 func (fm *ForthMachine) LoadFile(name string) (err error) {
 	fmt.Println("Load file ", name)
+	_, err = os.Stat(name)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 	file, err := os.Open(name)
-	fmt.Println(file.Stat())
+	defer file.Close()
 	if err != nil {
 		return err
 	}
-	defer file.Close()
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		fmt.Println(scanner.Text())

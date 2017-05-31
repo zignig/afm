@@ -52,7 +52,7 @@ type ForthMachine struct {
 
 func NewForthMachine(o Options) (fm *ForthMachine) {
 	fm = &ForthMachine{
-		Input:     make(chan string, 10),
+		Input:     make(chan string, 1000),
 		d:         NewForthDictionary(),
 		rStack:    NewBaseStack("rstack", o.rsize),
 		dStack:    NewBaseStack("dstack", o.dsize),
@@ -98,5 +98,6 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 		}
 		fmt.Println("ok")
 	}
+	fmt.Println("EXIT MACHINE")
 	return
 }
