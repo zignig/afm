@@ -21,7 +21,9 @@ func (fm *ForthMachine) SetDef() {
 		if empty {
 			return ErrNoMoreTokens
 		}
-		fmt.Println("test bind >", name)
+		if debug {
+			fmt.Println("test bind >", name)
+		}
 		newWord := NewBaseWord(name)
 		fm.current = newWord
 		fm.compile = true
@@ -33,7 +35,9 @@ func (fm *ForthMachine) SetDef() {
 	enddef.Imm(true)
 	fm.Add(enddef)
 	enddefFunc := func() (e error) {
-		fmt.Println("end define")
+		if debug {
+			fmt.Println("end define")
+		}
 		if fm.current != nil {
 			fm.Add(fm.current)
 			fm.current.SetCode(fm.raw)

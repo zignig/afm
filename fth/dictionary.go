@@ -49,7 +49,7 @@ func (fd *ForthDictionary) dump() {
 		}
 		val := current.value.Dump()
 		if len(val) > 0 {
-			fmt.Print(val)
+			fmt.Println(val)
 		}
 		current = current.prev
 	}

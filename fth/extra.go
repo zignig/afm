@@ -40,4 +40,16 @@ func (fm *ForthMachine) Extra() {
 	// include externale file
 	include := NewBaseWord("include")
 	fm.Add(include)
+	includeFunc := func() (e error) {
+		name, empty := fm.NextToken() // grab the next colon
+		if empty {
+			return ErrNoMoreTokens
+		}
+		e = fm.LoadFile(name)
+		if e != nil {
+			return e
+		}
+		return
+	}
+	include.SetExec(includeFunc)
 }

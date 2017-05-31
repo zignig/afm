@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -23,6 +24,22 @@ func (fm *ForthMachine) NextToken() (s string, empty bool) {
 	return s, empty
 }
 
+func (fm *ForthMachine) LoadFile(name string) (err error) {
+	fmt.Println("Load file ", name)
+	file, err := os.Open(name)
+	fmt.Println(file.Stat())
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		fmt.Println(scanner.Text())
+		fm.Input <- scanner.Text()
+	}
+	return
+}
+
 func (fm *ForthMachine) Process() (err error) {
 	for {
 		tok, empty := fm.NextToken()
@@ -40,13 +57,17 @@ func (fm *ForthMachine) Process() (err error) {
 		} else {
 			if fm.compile {
 				if w.IsImm() {
-					fmt.Println("imm function ", w.Name())
+					if debug {
+						fmt.Println("imm function ", w.Name())
+					}
 					err = w.Do()
 					if err != nil {
 						return err
 					}
 				}
-				fmt.Println("compile", fm.current, tok, w)
+				if debug {
+					fmt.Println("compile", fm.current, tok, w)
+				}
 				if fm.current != nil {
 					fm.current.Add(w)
 				}

@@ -81,6 +81,10 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 		return err
 	}
 	w.Do()
+	err = fm.LoadFile("./base.fth")
+	if err != nil {
+		return err
+	}
 	for {
 		if fm.exit {
 			exit <- true
