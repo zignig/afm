@@ -16,16 +16,6 @@ func main() {
 	<-exit
 	fmt.Println("EXITING")
 }
-func filterInput(r rune) (rune, bool) {
-	switch r {
-	// block CtrlZ feature
-	case readline.CharCtrlZ:
-		return r, false
-		//	case readline.CharInterrupt:
-		////		return r, false
-	}
-	return r, true
-}
 
 func Console(fm *afm.ForthMachine, exit chan bool) {
 	rl, err := readline.NewEx(&readline.Config{
@@ -33,7 +23,6 @@ func Console(fm *afm.ForthMachine, exit chan bool) {
 		HistoryFile:            "./history",
 		AutoComplete:           fm.Complete,
 		DisableAutoSaveHistory: true,
-		FuncFilterInputRune:    filterInput,
 	})
 	if err != nil {
 		panic(err)
