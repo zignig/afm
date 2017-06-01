@@ -29,7 +29,7 @@ func NewOptions(prompt string, startword string, debug bool, rsize int, dsize in
 
 func DefaultOptions() (o Options) {
 	o = Options{
-		Prompt:    "~$",
+		Prompt:    "-|",
 		startword: "init",
 		rsize:     32,
 		dsize:     32,
