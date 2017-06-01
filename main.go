@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var exit chan bool
-	options := fth.NewOptions("init", true, 32, 32, 4096)
+	options := fth.DefaultOptions()
 	fm := fth.NewForthMachine(options)
 	fm.Init()
 	go fm.Run(exit)
@@ -29,7 +29,7 @@ func filterInput(r rune) (rune, bool) {
 
 func Console(fm *fth.ForthMachine) {
 	rl, err := readline.NewEx(&readline.Config{
-		Prompt:                 "> ",
+		Prompt:                 fm.Options.Prompt,
 		HistoryFile:            "./history",
 		AutoComplete:           fm.Complete,
 		DisableAutoSaveHistory: true,

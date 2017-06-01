@@ -16,7 +16,9 @@ func (fm *ForthMachine) SetDef() {
 
 	// the magic define function
 	defFunc := func() (e error) {
-		fmt.Println("in define")
+		if debug {
+			fmt.Println("in define")
+		}
 		name, empty := fm.NextToken() // grab the next colon
 		if empty {
 			return ErrNoMoreTokens

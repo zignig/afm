@@ -41,6 +41,7 @@ func (fd *ForthDictionary) Add(w Word) (e error) {
 }
 
 func (fd *ForthDictionary) dump() {
+	fmt.Println()
 	var current *dictItem
 	current = fd.head
 	for {
