@@ -1,8 +1,8 @@
 package fth
 
 import (
-	"fmt"
-	"strings"
+//	"fmt"
+//	"strings"
 )
 
 type AutoCompleter interface {
@@ -21,12 +21,12 @@ func NewCompleter(fm *ForthMachine) (c *Completer) {
 }
 
 func (c *Completer) Do(line []rune, pos int) (newLine [][]rune, length int) {
-	typedSoFar := string(line[:pos])
-	spacePos := strings.IndexByte(typedSoFar, ' ')
-	entrim := line[spacePos+1:]
-	if spacePos > 0 {
-		fmt.Printf(">>%v<<\n", string(entrim))
-	}
-	newLine, length = c.fm.d.Find(entrim, pos)
+	//typedSoFar := string(line[:pos])
+	//spacePos := strings.IndexByte(typedSoFar, ' ')
+	//entrim := line[spacePos+1:]
+	//if spacePos > 0 {
+	//fmt.Printf(">>%v<<\n", string(entrim))
+	//}
+	newLine, length = c.fm.d.Find(line, pos)
 	return
 }

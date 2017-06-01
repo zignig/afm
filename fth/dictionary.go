@@ -57,6 +57,7 @@ func (fd *ForthDictionary) dump() {
 	fmt.Println()
 }
 
+// auto complete
 func (fd *ForthDictionary) Find(line []rune, pos int) (newLine [][]rune, length int) {
 	var current *dictItem
 	current = fd.head
