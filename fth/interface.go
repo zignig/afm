@@ -13,7 +13,7 @@ var (
 )
 
 func (fm *ForthMachine) out(s ...interface{}) {
-	fmt.Print(">>>")
+	fmt.Print(">| ")
 	fmt.Println(s...)
 }
 
