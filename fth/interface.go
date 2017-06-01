@@ -12,6 +12,15 @@ var (
 	ErrNoMoreTokens = errors.New("no more tokens")
 )
 
+func (fm *ForthMachine) out(s ...interface{}) {
+	fmt.Print(">>>")
+	fmt.Println(s...)
+}
+
+func (fm *ForthMachine) outf(s ...interface{}) {
+	fmt.Println(s...)
+}
+
 func (fm *ForthMachine) GetLine(line string) {
 	fm.raw = line
 	fm.scanner = bufio.NewScanner(strings.NewReader(line))
@@ -25,25 +34,25 @@ func (fm *ForthMachine) NextToken() (s string, empty bool) {
 }
 
 func (fm *ForthMachine) LoadFile(name string) (err error) {
-	fmt.Println("Load file ", name)
+	fm.out("Load file ", name)
 	_, err = os.Stat(name)
 	if err != nil {
-		fmt.Println(err)
+		fm.out(err)
 		return err
 	}
-	fmt.Println("Open File")
+	fm.out("Open File")
 	file, err := os.Open(name)
 	defer file.Close()
 	if err != nil {
 		return err
 	}
-	fmt.Println("Scan File")
+	fm.out("Scan File")
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		fmt.Println(scanner.Text())
+		fm.out(scanner.Text())
 		fm.Input <- scanner.Text()
 	}
-	fmt.Println("Finished ", name)
+	fm.out("Finished ", name)
 	return
 }
 
@@ -55,17 +64,17 @@ func (fm *ForthMachine) Process() (err error) {
 		}
 		w, err := fm.d.Search(tok)
 		if debug {
-			fmt.Println(w, err, tok)
+			fm.out(w, err, tok)
 		}
 		if err != nil {
-			fmt.Println(tok, "--", err)
+			fm.out(tok, "--", err)
 			fm.compile = false
 			return err
 		} else {
 			if fm.compile {
 				if w.IsImm() {
 					if debug {
-						fmt.Println("imm function ", w.Name())
+						fm.out("imm function ", w.Name())
 					}
 					err = w.Do()
 					if err != nil {
@@ -73,7 +82,7 @@ func (fm *ForthMachine) Process() (err error) {
 					}
 				}
 				if debug {
-					fmt.Println("compile", fm.current, tok, w)
+					fm.out("compile", fm.current, tok, w)
 				}
 				if fm.current != nil {
 					fm.current.Add(w)

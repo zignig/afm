@@ -3,7 +3,6 @@ package fth
 // Dictionary
 import (
 	"errors"
-	"fmt"
 	"strings"
 )
 
@@ -20,13 +19,18 @@ type dictItem struct {
 }
 
 type ForthDictionary struct {
+	fm   *ForthMachine
 	head *dictItem
 	stem *dictItem
 }
 
-func NewForthDictionary() (fd *ForthDictionary) {
-	fd = &ForthDictionary{}
+func NewForthDictionary(fm *ForthMachine) (fd *ForthDictionary) {
+	fd = &ForthDictionary{fm: fm}
 	return fd
+}
+
+func (fd *ForthDictionary) out(s ...interface{}) {
+	fd.fm.out(s...)
 }
 
 func (fd *ForthDictionary) Add(w Word) (e error) {
@@ -41,7 +45,7 @@ func (fd *ForthDictionary) Add(w Word) (e error) {
 }
 
 func (fd *ForthDictionary) dump() {
-	fmt.Println()
+	fd.out()
 	var current *dictItem
 	current = fd.head
 	for {
@@ -50,11 +54,11 @@ func (fd *ForthDictionary) dump() {
 		}
 		val := current.value.Dump()
 		if len(val) > 0 {
-			fmt.Println(val)
+			fd.fm.out(val)
 		}
 		current = current.prev
 	}
-	fmt.Println()
+	fd.out()
 }
 
 // auto complete
@@ -83,13 +87,13 @@ func (fd *ForthDictionary) Words() {
 			break
 		}
 		if debug {
-			fmt.Println(current.value)
+			fd.out(current.value)
 		} else {
-			fmt.Print(current.value.Name(), " ")
+			fd.out(current.value.Name(), " ")
 		}
 		current = current.prev
 	}
-	fmt.Println()
+	fd.out()
 }
 
 func (fd *ForthDictionary) Search(name string) (w Word, e error) {

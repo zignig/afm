@@ -1,8 +1,6 @@
 package fth
 
-import (
-	"fmt"
-)
+import ()
 
 // put the defining colon in own file
 func (fm *ForthMachine) Extra() {
@@ -18,7 +16,7 @@ func (fm *ForthMachine) Extra() {
 		if err != nil {
 			return err
 		}
-		fmt.Println(word, err)
+		fm.out(word, err)
 		return
 	}
 	def.SetExec(defFunc)
@@ -32,7 +30,7 @@ func (fm *ForthMachine) Extra() {
 		if e != nil {
 			return e
 		}
-		fmt.Println(w)
+		fm.out(w)
 		return nil
 	}
 	pop.SetExec(popFunc)

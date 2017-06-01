@@ -69,7 +69,7 @@ type ForthMachine struct {
 func NewForthMachine(o Options) (fm *ForthMachine) {
 	fm = &ForthMachine{
 		Input:     make(chan string, 1024),
-		d:         NewForthDictionary(),
+		d:         NewForthDictionary(fm),
 		dStack:    NewBaseStack("rstack", o.rsize),
 		rStack:    NewRstack("dstack", o.dsize),
 		startword: o.startword,

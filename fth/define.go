@@ -1,8 +1,6 @@
 package fth
 
-import (
-	"fmt"
-)
+import ()
 
 // put the defining colon in own file
 func (fm *ForthMachine) SetDef() {
@@ -17,14 +15,14 @@ func (fm *ForthMachine) SetDef() {
 	// the magic define function
 	defFunc := func() (e error) {
 		if debug {
-			fmt.Println("in define")
+			fm.out("in define")
 		}
 		name, empty := fm.NextToken() // grab the next colon
 		if empty {
 			return ErrNoMoreTokens
 		}
 		if debug {
-			fmt.Println("test bind >", name)
+			fm.out("test bind >", name)
 		}
 		newWord := NewBaseWord(name)
 		fm.current = newWord
@@ -38,7 +36,7 @@ func (fm *ForthMachine) SetDef() {
 	fm.Add(enddef)
 	enddefFunc := func() (e error) {
 		if debug {
-			fmt.Println("end define")
+			fm.out("end define")
 		}
 		if fm.current != nil {
 			fm.Add(fm.current)

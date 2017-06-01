@@ -1,8 +1,6 @@
 package fth
 
-import (
-	"fmt"
-)
+import ()
 
 // initialization things
 var helpText string = " this is a the start of a abstract forth machine"
@@ -15,7 +13,7 @@ func (fm *ForthMachine) Init() {
 	// the usual init work
 	init := NewBaseWord("init")
 	initTest := func() (e error) {
-		fmt.Println("init would go here")
+		fm.out("init would go here")
 		return
 	}
 	init.SetExec(initTest)
@@ -44,7 +42,7 @@ func (fm *ForthMachine) Init() {
 	help := NewBaseWord("help")
 	fm.Add(help)
 	helpFunc := func() (e error) {
-		fmt.Println(helpText)
+		fm.out(helpText)
 		return
 	}
 	help.SetExec(helpFunc)
@@ -55,9 +53,9 @@ func (fm *ForthMachine) Init() {
 	debugFunc := func() (e error) {
 		debug = !debug
 		if debug {
-			fmt.Println("debug on")
+			fm.out("debug on")
 		} else {
-			fmt.Println("debug off")
+			fm.out("debug off")
 		}
 		return
 	}
@@ -68,7 +66,7 @@ func (fm *ForthMachine) Init() {
 	bye := NewBaseWord("bye")
 	fm.Add(bye)
 	byeFunc := func() (e error) {
-		fmt.Println("EXIT SET")
+		fm.out("EXIT SET")
 		fm.Exit = true
 		return
 	}
