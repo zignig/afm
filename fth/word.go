@@ -77,7 +77,10 @@ func (b *BaseWord) Do() (e error) {
 		b.exec()
 		return
 	}
-	fmt.Println("runing >", b.name)
+	fmt.Println()
+	for i, j := range b.words {
+		fmt.Printf("%d: %s \n", i, j.Name())
+	}
 	return e
 }
 

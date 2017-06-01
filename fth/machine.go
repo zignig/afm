@@ -70,7 +70,7 @@ func NewForthMachine(o Options) (fm *ForthMachine) {
 		Input:     make(chan string, 1024),
 		d:         NewForthDictionary(),
 		rStack:    NewBaseStack("rstack", o.rsize),
-		dStack:    NewBaseStack("dstack", o.dsize),
+		dStack:    NewRstack("dstack", o.dsize),
 		startword: o.startword,
 		prompt:    o.Prompt,
 		Options:   o,
