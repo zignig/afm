@@ -7,12 +7,12 @@ import (
 )
 
 func main() {
-	var exit chan bool
+	exit := make(chan bool, 1)
 	options := fth.DefaultOptions()
 	fm := fth.NewForthMachine(options)
 	fm.Init()
 	go fm.Run(exit)
-	go Console(fm)
+	go Console(fm, exit)
 	<-exit
 	fmt.Println("EXITING")
 }
@@ -27,7 +27,7 @@ func filterInput(r rune) (rune, bool) {
 	return r, true
 }
 
-func Console(fm *fth.ForthMachine) {
+func Console(fm *fth.ForthMachine, exit chan bool) {
 	rl, err := readline.NewEx(&readline.Config{
 		Prompt:                 fm.Options.Prompt,
 		HistoryFile:            "./history",
@@ -41,11 +41,15 @@ func Console(fm *fth.ForthMachine) {
 	}
 	defer rl.Close()
 	for {
+		if fm.Exit {
+			fmt.Println("console exit")
+			//			exit <- true
+			return
+		}
 		line, err := rl.Readline()
 		if err != nil {
 			return
 		}
-		fmt.Println(line)
 		rl.SaveHistory(line)
 		fm.Input <- line
 	}
