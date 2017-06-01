@@ -17,7 +17,7 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 	}
 	w.Do()
 	for {
-		if fm.exit {
+		if fm.Exit {
 			exit <- true
 			break
 		}

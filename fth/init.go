@@ -69,7 +69,7 @@ func (fm *ForthMachine) Init() {
 	fm.Add(bye)
 	byeFunc := func() (e error) {
 		fmt.Println("EXIT SET")
-		fm.exit = true
+		fm.Exit = true
 		return
 	}
 	bye.SetExec(byeFunc)

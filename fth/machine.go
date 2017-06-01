@@ -2,7 +2,6 @@ package fth
 
 import (
 	"bufio"
-	"io"
 )
 
 // base forth machine structure
@@ -44,33 +43,35 @@ var debug bool
 
 type ForthMachine struct {
 	Input  chan string
-	Output io.Reader
+	Output chan string
 	d      *ForthDictionary
 	dStack Stack
-	rStack Stack
+	rStack *Rstack
 
 	prompt    string
 	startword string
-	exit      bool
+	Exit      bool
 
 	// Options
 	Options Options
 	// completer
 	Complete *Completer
 	// state
+	pc      *PCRef // program counter
 	raw     string
 	scanner *bufio.Scanner
 	compile bool // true compiling / false intepreting
 	// text processing
-	current Word // current word that the machine is currently working on
+	current Word   // current word that the machine is currently working on
+	token   string // current token
 }
 
 func NewForthMachine(o Options) (fm *ForthMachine) {
 	fm = &ForthMachine{
 		Input:     make(chan string, 1024),
 		d:         NewForthDictionary(),
-		rStack:    NewBaseStack("rstack", o.rsize),
-		dStack:    NewRstack("dstack", o.dsize),
+		dStack:    NewBaseStack("rstack", o.rsize),
+		rStack:    NewRstack("dstack", o.dsize),
 		startword: o.startword,
 		prompt:    o.Prompt,
 		Options:   o,

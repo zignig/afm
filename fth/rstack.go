@@ -2,31 +2,31 @@ package fth
 
 import ()
 
-type ref struct {
+type PCRef struct {
 	w      *Word
 	offset int
 }
 
 type Rstack struct {
 	name  string
-	items []*ref
+	items []*PCRef
 	size  int
 }
 
 func NewRstack(name string, depth int) (r *Rstack) {
 	r = &Rstack{
 		name:  name,
-		items: make([]*ref, depth),
+		items: make([]*PCRef, depth),
 		size:  depth,
 	}
 	return
 }
 
-func (bs *Rstack) Pop() (w *Word, e error) {
+func (bs *Rstack) Pop() (pcr *PCRef, e error) {
 	return nil, ErrStackEmpty
 }
 
-func (bs *Rstack) Push(w *Word) (e error) {
+func (bs *Rstack) Push(pcr *PCRef) (e error) {
 	return nil
 }
 
