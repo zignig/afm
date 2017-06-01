@@ -1,4 +1,4 @@
-package fth
+package afm
 
 // Dictionary
 import (

@@ -1,4 +1,4 @@
-package fth
+package afm
 
 // Stack, same kind of stack used for both
 import (
