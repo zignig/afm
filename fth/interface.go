@@ -31,16 +31,19 @@ func (fm *ForthMachine) LoadFile(name string) (err error) {
 		fmt.Println(err)
 		return err
 	}
+	fmt.Println("Open File")
 	file, err := os.Open(name)
 	defer file.Close()
 	if err != nil {
 		return err
 	}
+	fmt.Println("Scan File")
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		fmt.Println(scanner.Text())
 		fm.Input <- scanner.Text()
 	}
+	fmt.Println("Finished ", name)
 	return
 }
 

@@ -7,7 +7,7 @@ import (
 func (fm *ForthMachine) Run(exit chan bool) (e error) {
 	err := fm.LoadFile("./base.fth")
 	if err != nil {
-		return err
+		fmt.Println(err)
 	}
 	fmt.Printf("Starting on %s\n", fm.startword)
 	w, err := fm.d.Search(fm.startword)
