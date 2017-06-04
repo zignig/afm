@@ -16,11 +16,14 @@ type Word interface {
 	Dump() (code string)
 	IsImm() bool
 	Imm(bool)
+	IsLit() bool
+	Lit(bool)
 }
 
 type BaseWord struct {
 	name      string
 	immediate bool
+	litteral  bool
 	code      string
 	words     []Word
 	count     int
@@ -48,6 +51,14 @@ func (b *BaseWord) Dump() (code string) {
 
 func (b *BaseWord) SetCode(code string) {
 	b.code = code
+}
+
+func (b *BaseWord) Lit(i bool) {
+	b.litteral = i
+}
+
+func (b *BaseWord) IsLit() bool {
+	return b.litteral
 }
 
 func (b *BaseWord) Imm(i bool) {

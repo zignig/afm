@@ -1,6 +1,8 @@
 package afm
 
-import ()
+import (
+	"fmt"
+)
 
 // put the defining colon in own file
 func (fm *ForthMachine) Extra() {
@@ -30,10 +32,19 @@ func (fm *ForthMachine) Extra() {
 		if e != nil {
 			return e
 		}
+		fm.out("POP: ", w)
 		fm.out(w)
 		return nil
 	}
 	pop.SetExec(popFunc)
+
+	showStack := NewBaseWord(".s")
+	fm.Add(showStack)
+	showStackFunc := func() (e error) {
+		fmt.Println(fm.dStack)
+		return e
+	}
+	showStack.SetExec(showStackFunc)
 
 	// include externale file
 	include := NewBaseWord("include")

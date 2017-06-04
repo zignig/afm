@@ -31,6 +31,17 @@ func (fm *ForthMachine) SetDef() {
 	}
 	def.SetExec(defFunc)
 
+	// make word litteral
+	lit := NewBaseWord("lit")
+	fm.Add(lit)
+	litFunc := func() (e error) {
+		fm.current.Lit(true)
+		return nil
+	}
+	lit.Imm(true)
+	lit.SetExec(litFunc)
+
+	// end compule
 	enddef := NewBaseWord(";")
 	enddef.Imm(true)
 	fm.Add(enddef)
@@ -39,11 +50,12 @@ func (fm *ForthMachine) SetDef() {
 			fm.out("end define")
 		}
 		if fm.current != nil {
-			fm.Add(fm.current)
+			if fm.current.IsImm() == false {
+				fm.Add(fm.current)
+			}
 			fm.current.SetCode(fm.raw)
 			fm.current.Add(popRstack)
 		}
-		fm.current = nil
 		fm.compile = false
 		return
 	}
