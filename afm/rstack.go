@@ -10,6 +10,7 @@ type PCRef struct {
 type Rstack struct {
 	name  string
 	items []*PCRef
+	pos   int
 	size  int
 }
 
@@ -18,6 +19,7 @@ func NewRstack(name string, depth int) (r *Rstack) {
 		name:  name,
 		items: make([]*PCRef, depth),
 		size:  depth,
+		pos:   0,
 	}
 	return
 }
