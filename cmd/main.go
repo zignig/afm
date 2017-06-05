@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./fth"
+	"../fth"
 	"fmt"
 	"github.com/chzyer/readline"
 )
