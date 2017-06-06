@@ -9,6 +9,7 @@ func (fm *ForthMachine) SetDef() {
 	fm.Add(popRstack)
 	popRstackFunc := func() (e error) {
 		fm.out("POP R STACK")
+		fm.rStack.Pop()
 		return e
 	}
 	popRstack.SetExec(popRstackFunc)

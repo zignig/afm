@@ -93,8 +93,12 @@ func (fm *ForthMachine) Call() {
 	call := func() (e error) {
 		fmt.Println("push onto return stack")
 		fm.rStack.Push(fm.pc)
+		fmt.Println("before", fm.rStack)
 		fmt.Print("RUN > ")
+		// run through and call words here
+		// will recurse down and back and up
 		fmt.Println(fm.pc.w)
+		// need to increment the PC counter with bounds checking
 		fmt.Println("pop return stack")
 		newPc, err := fm.rStack.Pop()
 		if err != nil {
@@ -102,6 +106,7 @@ func (fm *ForthMachine) Call() {
 		}
 		fmt.Println("update program counter")
 		fm.pc = newPc
+		fmt.Println("after ", fm.rStack)
 		return
 	}
 	fm.call = call

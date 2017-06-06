@@ -8,6 +8,11 @@ type PCRef struct {
 	offset int
 }
 
+func (pc *PCRef) String() string {
+	a := pc.w.Name() + " | " + string(pc.offset)
+	return a
+}
+
 type Rstack struct {
 	name  string
 	items []*PCRef
