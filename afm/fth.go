@@ -91,9 +91,17 @@ func (fm *ForthMachine) Process() (err error) {
 func (fm *ForthMachine) Call() {
 	fmt.Println("Calling function for primary execution")
 	call := func() (e error) {
+		fmt.Println("push onto return stack")
 		fm.rStack.Push(fm.pc)
 		fmt.Print("RUN > ")
 		fmt.Println(fm.pc.w)
+		fmt.Println("pop return stack")
+		newPc, err := fm.rStack.Pop()
+		if err != nil {
+			return err
+		}
+		fmt.Println("update program counter")
+		fm.pc = newPc
 		return
 	}
 	fm.call = call
