@@ -25,13 +25,24 @@ func NewRstack(name string, depth int) (r *Rstack) {
 }
 
 func (bs *Rstack) Pop() (pcr *PCRef, e error) {
+	if bs.pos > 0 {
+		bs.pos--
+		pcr = bs.items[bs.pos]
+		bs.items[bs.pos] = nil
+		return pcr, nil
+	}
 	return nil, ErrStackEmpty
 }
 
 func (bs *Rstack) Push(pcr *PCRef) (e error) {
+	if bs.pos == bs.size {
+		return ErrStackFull
+	}
+	bs.items[bs.pos] = pcr
+	bs.pos++
 	return nil
 }
 
 func (bs *Rstack) Depth() (d int) {
-	return len(bs.items)
+	return bs.pos
 }

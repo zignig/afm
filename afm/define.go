@@ -7,6 +7,11 @@ func (fm *ForthMachine) SetDef() {
 	// return stack
 	popRstack := NewBaseWord("<r")
 	fm.Add(popRstack)
+	popRstackFunc := func() (e error) {
+		fm.out("POP R STACK")
+		return e
+	}
+	popRstack.SetExec(popRstackFunc)
 
 	def := NewBaseWord(":")
 	def.Imm(true)

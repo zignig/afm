@@ -7,6 +7,7 @@ import (
 // Base interface
 type execFunc func() (e error)
 
+// TODO this interface is too big
 type Word interface {
 	Name() (s string)
 	Do() (e error)
@@ -28,6 +29,9 @@ type BaseWord struct {
 	words     []Word
 	count     int
 	exec      execFunc
+
+	val int
+	st  string
 }
 
 func (b *BaseWord) String() string {
@@ -35,13 +39,16 @@ func (b *BaseWord) String() string {
 	if b.immediate {
 		s += "(IMM)"
 	}
-	s += "\ncode > " + b.code
-	s += "\n"
-	if len(b.words) > 0 {
-		for _, j := range b.words {
-			s += fmt.Sprintf("%v ", j.Name())
-		}
+	if b.litteral {
+		s += "(LIT)"
 	}
+	//s += "\ncode > " + b.code
+	//s += "\n"
+	//if len(b.words) > 0 {
+	//	for _, j := range b.words {
+	//		s += fmt.Sprintf("%v ", j.Name())
+	//	}
+	//}
 	return s
 }
 

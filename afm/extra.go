@@ -33,7 +33,6 @@ func (fm *ForthMachine) Extra() {
 			return e
 		}
 		fm.out("POP: ", w)
-		fm.out(w)
 		return nil
 	}
 	pop.SetExec(popFunc)
@@ -41,10 +40,18 @@ func (fm *ForthMachine) Extra() {
 	showStack := NewBaseWord(".s")
 	fm.Add(showStack)
 	showStackFunc := func() (e error) {
-		fmt.Println(fm.dStack)
+		fm.dStack.Show()
 		return e
 	}
 	showStack.SetExec(showStackFunc)
+
+	showRStack := NewBaseWord(".r")
+	fm.Add(showRStack)
+	showRStackFunc := func() (e error) {
+		fmt.Println(fm.rStack)
+		return e
+	}
+	showRStack.SetExec(showRStackFunc)
 
 	// include externale file
 	include := NewBaseWord("include")
