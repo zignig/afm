@@ -60,7 +60,7 @@ func (fm *ForthMachine) SetDef() {
 				fm.Add(fm.current)
 			}
 			fm.current.SetCode(fm.raw)
-			fm.current.Add(popRstack)
+			//fm.current.Add(popRstack)
 			fm.current.SetExec(fm.call)
 		}
 		fm.compile = false

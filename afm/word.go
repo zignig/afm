@@ -19,6 +19,8 @@ type Word interface {
 	Imm(bool)
 	IsLit() bool
 	Lit(bool)
+	Length() int
+	Get(int) (w Word)
 }
 
 type BaseWord struct {
@@ -35,13 +37,14 @@ type BaseWord struct {
 }
 
 func (b *BaseWord) String() string {
-	s := b.Name() + " : "
+	s := b.Name()
 	if b.immediate {
-		s += "(IMM)"
+		s += "|I"
 	}
 	if b.litteral {
-		s += "(LIT)"
+		s += "|L"
 	}
+	s += string(b.count) + "- "
 	//s += "\ncode > " + b.code
 	//s += "\n"
 	if len(b.words) > 0 {
@@ -50,6 +53,17 @@ func (b *BaseWord) String() string {
 		}
 	}
 	return s
+}
+
+func (b *BaseWord) Get(i int) (w Word) {
+	if i < len(b.words) {
+		return b.words[i]
+	}
+	return
+}
+
+func (b *BaseWord) Length() (i int) {
+	return len(b.words)
 }
 
 func (b *BaseWord) Dump() (code string) {

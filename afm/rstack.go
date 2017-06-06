@@ -1,7 +1,12 @@
 package afm
 
 import (
+	"errors"
 	"fmt"
+)
+
+var (
+	ErrWordOverflow = errors.New("Too many words")
 )
 
 // Program counter reference
@@ -13,6 +18,14 @@ type PCRef struct {
 func (pc *PCRef) String() string {
 	a := pc.w.Name() + " | " + string(pc.offset)
 	return a
+}
+
+func (pc *PCRef) inc() (e error) {
+	if pc.w.Length() < pc.offset {
+		pc.offset++
+		return
+	}
+	return
 }
 
 type Rstack struct {

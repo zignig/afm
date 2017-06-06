@@ -69,17 +69,9 @@ func (fm *ForthMachine) Process() (err error) {
 				}
 			} else {
 				// interpreter
-				// litteral
-				if w.IsLit() {
-					err = fm.dStack.Push(w)
-					if err != nil {
-						return err
-					}
-					continue
-				}
-				// execute
 				// set the program counter
 				fm.pc = &PCRef{w: w, offset: 0}
+				// execute the woord
 				err = w.Do()
 				if err != nil {
 					return err
@@ -97,16 +89,26 @@ func (fm *ForthMachine) Call() {
 		fm.rStack.Push(fm.pc)
 		fm.rStack.Show()
 		fmt.Print("RUN > ")
+		//push the literal on the stack
+		if fm.pc.w.IsLit() {
+			e = fm.dStack.Push(fm.pc.w)
+			if e != nil {
+				return e
+			}
+		}
+		// execute
 		// run through and call words here
 		// will recurse down and back and up
 		fmt.Println(fm.pc.w)
+		fm.pc.inc()
 		// need to increment the PC counter with bounds checking
-		fmt.Println("pop return stack")
+		//fmt.Println("pop return stack")
+
 		newPc, err := fm.rStack.Pop()
 		if err != nil {
 			return err
 		}
-		fmt.Println("update program counter")
+		//fmt.Println("update program counter")
 		fm.pc = newPc
 		fm.rStack.Show()
 		return
