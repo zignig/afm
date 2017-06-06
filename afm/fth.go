@@ -109,5 +109,7 @@ func (fm *ForthMachine) Call() {
 		fmt.Println("after ", fm.rStack)
 		return
 	}
+	// assign this function to the global call
+	// it is attached to any normal defined word
 	fm.call = call
 }

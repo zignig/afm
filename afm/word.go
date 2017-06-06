@@ -92,8 +92,8 @@ func (b *BaseWord) Do() (e error) {
 	// check if it has an internal GO function
 	b.count++
 	if b.exec != nil {
-		b.exec()
-		return
+		e := b.exec()
+		return e
 	}
 	fmt.Println()
 	for i, j := range b.words {
