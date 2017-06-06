@@ -2,8 +2,9 @@ package afm
 
 import ()
 
+// Program counter reference
 type PCRef struct {
-	w      *Word
+	w      Word
 	offset int
 }
 

@@ -44,11 +44,11 @@ func (b *BaseWord) String() string {
 	}
 	//s += "\ncode > " + b.code
 	//s += "\n"
-	//if len(b.words) > 0 {
-	//	for _, j := range b.words {
-	//		s += fmt.Sprintf("%v ", j.Name())
-	//	}
-	//}
+	if len(b.words) > 0 {
+		for _, j := range b.words {
+			s += fmt.Sprintf("%v ", j.Name())
+		}
+	}
 	return s
 }
 

@@ -76,6 +76,8 @@ func (fm *ForthMachine) Process() (err error) {
 					continue
 				}
 				// execute
+				// set the program counter
+				fm.pc = &PCRef{w: w, offset: 0}
 				err = w.Do()
 				if err != nil {
 					return err
@@ -87,9 +89,11 @@ func (fm *ForthMachine) Process() (err error) {
 }
 
 func (fm *ForthMachine) Call() {
-	fmt.Println("Calling function")
+	fmt.Println("Calling function for primary execution")
 	call := func() (e error) {
-		fmt.Println("BOINK")
+		fm.rStack.Push(fm.pc)
+		fmt.Print("RUN > ")
+		fmt.Println(fm.pc.w)
 		return
 	}
 	fm.call = call
