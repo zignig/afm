@@ -26,7 +26,9 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 			fm.GetLine(line)
 			err = fm.Process()
 		}
-		fmt.Println(err)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 	fm.out("EXIT MACHINE")
 	return
@@ -36,7 +38,7 @@ func (fm *ForthMachine) Process() (err error) {
 	for {
 		tok, empty := fm.NextToken()
 		if empty {
-			return ErrNoMoreTokens
+			return
 		}
 		w, err := fm.d.Search(tok)
 		if debug {
@@ -91,9 +93,9 @@ func (fm *ForthMachine) Process() (err error) {
 func (fm *ForthMachine) Call() {
 	fmt.Println("Calling function for primary execution")
 	call := func() (e error) {
-		fmt.Println("push onto return stack")
+		//fmt.Println("push onto return stack")
 		fm.rStack.Push(fm.pc)
-		fmt.Println("before", fm.rStack)
+		fm.rStack.Show()
 		fmt.Print("RUN > ")
 		// run through and call words here
 		// will recurse down and back and up
@@ -106,7 +108,7 @@ func (fm *ForthMachine) Call() {
 		}
 		fmt.Println("update program counter")
 		fm.pc = newPc
-		fmt.Println("after ", fm.rStack)
+		fm.rStack.Show()
 		return
 	}
 	// assign this function to the global call

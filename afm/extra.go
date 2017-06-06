@@ -1,16 +1,13 @@
 package afm
 
-import (
-	"fmt"
-)
+import ()
 
-// put the defining colon in own file
 func (fm *ForthMachine) Extra() {
 	// instrospacetion
 	def := NewBaseWord("see")
 	fm.Add(def)
 	defFunc := func() (e error) {
-		name, empty := fm.NextToken() // grab the next colon
+		name, empty := fm.NextToken() // grab the next token
 		if empty {
 			return ErrNoMoreTokens
 		}
@@ -48,7 +45,7 @@ func (fm *ForthMachine) Extra() {
 	showRStack := NewBaseWord(".r")
 	fm.Add(showRStack)
 	showRStackFunc := func() (e error) {
-		fmt.Println(fm.rStack)
+		fm.rStack.Show()
 		return e
 	}
 	showRStack.SetExec(showRStackFunc)

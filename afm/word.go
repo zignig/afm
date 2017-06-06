@@ -35,7 +35,7 @@ type BaseWord struct {
 }
 
 func (b *BaseWord) String() string {
-	s := b.Name()
+	s := b.Name() + " : "
 	if b.immediate {
 		s += "(IMM)"
 	}

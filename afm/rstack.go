@@ -1,6 +1,8 @@
 package afm
 
-import ()
+import (
+	"fmt"
+)
 
 // Program counter reference
 type PCRef struct {
@@ -30,6 +32,16 @@ func NewRstack(name string, depth int) (r *Rstack) {
 	return
 }
 
+func (bs *Rstack) Show() {
+	if bs.pos == 0 {
+		fmt.Println("R stack empty")
+		return
+	}
+	fmt.Println("R stack")
+	for i := 0; i < bs.pos; i++ {
+		fmt.Println(i, ":", bs.items[i])
+	}
+}
 func (bs *Rstack) Pop() (pcr *PCRef, e error) {
 	if bs.pos > 0 {
 		bs.pos--
