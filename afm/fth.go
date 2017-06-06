@@ -15,7 +15,7 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 		fm.out("boot error :", err)
 		return err
 	}
-	w.Do()
+	w.Do() // execute the init
 	for {
 		if fm.Exit {
 			exit <- true
@@ -67,14 +67,15 @@ func (fm *ForthMachine) Process() (err error) {
 				}
 			} else {
 				// interpreter
+				// litteral
 				if w.IsLit() {
-					fmt.Println("CHUCK ME ON THE STACK")
 					err = fm.dStack.Push(w)
 					if err != nil {
 						return err
 					}
 					continue
 				}
+				// execute
 				err = w.Do()
 				if err != nil {
 					return err
@@ -83,4 +84,13 @@ func (fm *ForthMachine) Process() (err error) {
 		}
 	}
 	return nil
+}
+
+func (fm *ForthMachine) Call() {
+	fmt.Println("Calling function")
+	call := func() (e error) {
+		fmt.Println("BOINK")
+		return
+	}
+	fm.call = call
 }

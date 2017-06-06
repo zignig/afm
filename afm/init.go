@@ -10,6 +10,8 @@ func (fm *ForthMachine) Init() {
 	fm.SetDef()
 	// extra functions
 	fm.Extra()
+	// Call Executor
+	fm.Call()
 	// the usual init work
 	init := NewBaseWord("init")
 	initTest := func() (e error) {

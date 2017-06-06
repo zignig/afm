@@ -52,18 +52,18 @@ type ForthMachine struct {
 	startword string
 	Exit      bool
 
-	// Options
+	// Options Struct for forth machine.
 	Options Options
-	// completer
+	// completer for readline
 	Complete *Completer
 	// state
-	pc      *PCRef // program counter
-	raw     string
-	scanner *bufio.Scanner
-	compile bool // true compiling / false intepreting
-	// text processing
-	current Word   // current word that the machine is currently working on
-	token   string // current token
+	pc      *PCRef         // program counter
+	raw     string         // raw text input
+	scanner *bufio.Scanner // input text scanner
+	compile bool           // true compiling / false intepreting
+	current Word           // current word that the machine is currently working on
+	token   string         // current token
+	call    execFunc       // exec func that runs all the words inside the words
 }
 
 func NewForthMachine(o Options) (fm *ForthMachine) {
