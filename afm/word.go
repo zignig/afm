@@ -21,6 +21,8 @@ type Word interface {
 	Lit(bool)
 	Length() int
 	Get(int) (w Word)
+	GetVal() (i int)
+	SetVal(i int)
 }
 
 type BaseWord struct {
@@ -53,6 +55,14 @@ func (b *BaseWord) String() string {
 		}
 	}
 	return s
+}
+
+func (b *BaseWord) GetVal() (i int) {
+	return b.val
+}
+
+func (b *BaseWord) SetVal(i int) {
+	b.val = i
 }
 
 func (b *BaseWord) Get(i int) (w Word) {
@@ -104,14 +114,11 @@ func (b *BaseWord) Add(w Word) {
 
 func (b *BaseWord) Do() (e error) {
 	// check if it has an internal GO function
+	fmt.Println("DO ", b.Name(), " ")
 	b.count++
 	if b.exec != nil {
 		e := b.exec()
 		return e
-	}
-	fmt.Println()
-	for i, j := range b.words {
-		fmt.Printf("%d: %s \n", i, j.Name())
 	}
 	return e
 }

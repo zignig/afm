@@ -15,6 +15,11 @@ type PCRef struct {
 	offset int
 }
 
+func (pc *PCRef) Set(w Word, offset int) {
+	pc.w = w.Get(0)
+	pc.offset = offset
+}
+
 func (pc *PCRef) String() string {
 	a := pc.w.Name() + " | " + string(pc.offset)
 	return a
@@ -28,6 +33,17 @@ func (pc *PCRef) inc() (e error) {
 	return
 }
 
+// wrap a pc in a word so it can go into the rstack
+func (pc *PCRef) wrap() (w Word) {
+	w = NewBaseWord(pc.w.Name())
+	// set the target word as the first ref
+	w.Add(pc.w)
+	// set the val as the offset
+	w.SetVal(pc.offset)
+	return
+}
+
+// pls remove
 type Rstack struct {
 	name  string
 	items []*PCRef

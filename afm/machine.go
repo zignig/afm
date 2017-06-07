@@ -46,7 +46,7 @@ type ForthMachine struct {
 	Output chan string
 	d      *ForthDictionary
 	dStack Stack
-	rStack *Rstack
+	rStack Stack
 
 	prompt    string
 	startword string
@@ -57,7 +57,7 @@ type ForthMachine struct {
 	// completer for readline
 	Complete *Completer
 	// state
-	pc      *PCRef         // program counter
+	pc      PCRef          // program counter
 	raw     string         // raw text input
 	scanner *bufio.Scanner // input text scanner
 	compile bool           // true compiling / false intepreting
@@ -71,7 +71,7 @@ func NewForthMachine(o Options) (fm *ForthMachine) {
 		Input:     make(chan string, 1024),
 		d:         NewForthDictionary(fm),
 		dStack:    NewBaseStack("dstack", o.rsize),
-		rStack:    NewRstack("rstack", o.dsize),
+		rStack:    NewBaseStack("rstack", o.dsize),
 		startword: o.startword,
 		prompt:    o.Prompt,
 		Options:   o,

@@ -39,12 +39,12 @@ func NewBaseStack(name string, size int) (bs *BaseStack) {
 
 func (bs *BaseStack) Show() {
 	if bs.pos == 0 {
-		fmt.Println("D stack empty")
+		fmt.Println(bs.name, " stack empty")
 		return
 	}
-	fmt.Println("D stack")
+	fmt.Println(bs.name)
 	for i := 0; i < bs.pos; i++ {
-		fmt.Println("stack ", i, ":", bs.items[i])
+		fmt.Println(i, ":", bs.items[i])
 	}
 }
 
