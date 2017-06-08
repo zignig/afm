@@ -46,7 +46,7 @@ func (b *BaseWord) String() string {
 	if b.litteral {
 		s += "|L"
 	}
-	s += string(b.count) + "- "
+	s += string(b.count) + " - "
 	//s += "\ncode > " + b.code
 	//s += "\n"
 	if len(b.words) > 0 {
