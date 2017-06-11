@@ -28,6 +28,9 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 			// io
 			// nonvolatile memory
 			// random go struct with heaps of goroutines running ?
+			// main execution loop goes here
+		case xt := <-fm.XT:
+			err = fm.Run(xt)
 		}
 		if err != nil {
 			fmt.Println(err)
@@ -36,6 +39,12 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 	}
 	fm.out("EXIT MACHINE")
 	return
+}
+
+func (fm *ForthMachine) Run(w Word) (err error) {
+	fmt.Print("EXECUTE THIS >")
+	fmt.Println(w)
+	return nil
 }
 
 func (fm *ForthMachine) Process() (err error) {
@@ -72,22 +81,16 @@ func (fm *ForthMachine) Process() (err error) {
 					fm.current.Add(w)
 				}
 			} else {
-				// interpreter
-				// set the program counter
-				// execute the woord
-				// runs the Call function (below)
-				fm.pc.w = w
-				fm.pc.offset = 0
-				err = w.Do()
-				if err != nil {
-					return err
-				}
+				// execute
+				fm.XT <- w
+				return
 			}
 		}
 	}
 	return nil
 }
 
+// this structure is wrong , need to call from A hight level loop
 func (fm *ForthMachine) Call() {
 	// Calling function for primary execution
 	call := func() (e error) {
@@ -108,7 +111,7 @@ func (fm *ForthMachine) Call() {
 			}
 		}
 		// execute
-		// move the porgram counter to the start of the next word
+		// move the pragram counter to the start of the next word
 		fm.pc.Set(current, 0)
 		// execute
 		e = fm.pc.w.Do()

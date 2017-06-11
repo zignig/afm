@@ -42,8 +42,10 @@ func DefaultOptions() (o Options) {
 var debug bool
 
 type ForthMachine struct {
-	Input  chan string
-	Output chan string
+	Input  chan string // inputs strings
+	Output chan string // Output strings
+	Error  chan string // Error channel
+	XT     chan Word   // execution channel ( run _this_ word )
 	d      *ForthDictionary
 	dStack Stack
 	rStack Stack
@@ -69,6 +71,9 @@ type ForthMachine struct {
 func NewForthMachine(o Options) (fm *ForthMachine) {
 	fm = &ForthMachine{
 		Input:     make(chan string, 1024),
+		Output:    make(chan string, 1024),
+		Error:     make(chan string, 1024),
+		XT:        make(chan Word),
 		d:         NewForthDictionary(fm),
 		dStack:    NewBaseStack("dstack", o.rsize),
 		rStack:    NewBaseStack("rstack", o.dsize),
