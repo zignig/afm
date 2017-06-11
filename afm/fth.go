@@ -15,24 +15,28 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 		fm.out("boot error :", err)
 		return err
 	}
+	// this is the main machine loop
 	for {
 		if fm.Exit {
 			exit <- true
 			break
 		}
+
 		select {
-		case line := <-fm.Input:
+		case line := <-fm.Input: // a string of input has arrived
 			fm.GetLine(line)
 			err = fm.Process()
 			// more input sources here
 			// io
 			// nonvolatile memory
 			// random go struct with heaps of goroutines running ?
-			// main execution loop goes here
-		case xt := <-fm.XT:
-			err = fm.Run(xt)
+		// main execution loop goes here
+		case xt := <-fm.XT: // grab an execution token out
+			err = fm.Exec(xt)
 		}
+
 		if err != nil {
+			// need error handlers here (perhaps dynamic)
 			fmt.Println(err)
 		}
 		fmt.Println("ok")
@@ -41,10 +45,11 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 	return
 }
 
-func (fm *ForthMachine) Run(w Word) (err error) {
+func (fm *ForthMachine) Exec(w Word) (err error) {
 	fmt.Print("EXECUTE THIS >")
-	fmt.Println(w)
-	return nil
+	err = w.Do()
+	fmt.Println(w, err)
+	return err
 }
 
 func (fm *ForthMachine) Process() (err error) {
@@ -63,17 +68,19 @@ func (fm *ForthMachine) Process() (err error) {
 			fm.compile = false
 			return err
 		} else {
+			// always execute immediate words
+			if w.IsImm() {
+				if debug {
+					fm.out("imm function ", w.Name())
+				}
+				err = fm.Exec(w)
+				if err != nil {
+					return err
+				}
+				continue
+			}
 			if fm.compile {
 				// compiler
-				if w.IsImm() {
-					if debug {
-						fm.out("imm function ", w.Name())
-					}
-					err = w.Do()
-					if err != nil {
-						return err
-					}
-				}
 				if debug {
 					fm.out("compile", fm.current, tok, w)
 				}
@@ -81,9 +88,9 @@ func (fm *ForthMachine) Process() (err error) {
 					fm.current.Add(w)
 				}
 			} else {
-				// execute
+				// spool into execution
+				fmt.Println("Spool >", w)
 				fm.XT <- w
-				return
 			}
 		}
 	}
@@ -91,6 +98,7 @@ func (fm *ForthMachine) Process() (err error) {
 }
 
 // this structure is wrong , need to call from A hight level loop
+// disabled for now
 func (fm *ForthMachine) Call() {
 	// Calling function for primary execution
 	call := func() (e error) {

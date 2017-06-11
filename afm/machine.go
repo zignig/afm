@@ -70,10 +70,10 @@ type ForthMachine struct {
 
 func NewForthMachine(o Options) (fm *ForthMachine) {
 	fm = &ForthMachine{
-		Input:     make(chan string, 1024),
+		Input:     make(chan string, 1024), // perhaps this should be a config variable
 		Output:    make(chan string, 1024),
 		Error:     make(chan string, 1024),
-		XT:        make(chan Word),
+		XT:        make(chan Word, 1024),
 		d:         NewForthDictionary(fm),
 		dStack:    NewBaseStack("dstack", o.rsize),
 		rStack:    NewBaseStack("rstack", o.dsize),
