@@ -66,8 +66,7 @@ func (fm *ForthMachine) SetDef() {
 			}
 			fm.current.SetCode(fm.raw)
 			fm.current.Add(popRstack)
-			// remove auto call
-			//fm.current.SetExec(fm.call)
+			fm.current.SetExec(fm.call)
 		}
 		fm.compile = false
 		return

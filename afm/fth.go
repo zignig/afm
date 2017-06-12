@@ -97,9 +97,18 @@ func (fm *ForthMachine) Process() (err error) {
 	return nil
 }
 
+func (fm *ForthMachine) Call() {
+	// Calling function for primary execution
+	call := func() (e error) {
+		fmt.Println("CALL")
+		return
+	}
+	fm.call = call
+}
+
 // this structure is wrong , need to call from A hight level loop
 // disabled for now
-func (fm *ForthMachine) Call() {
+func (fm *ForthMachine) OldCall() {
 	// Calling function for primary execution
 	call := func() (e error) {
 		//fmt.Println("push onto return stack")

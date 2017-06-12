@@ -52,6 +52,7 @@ func (fm *ForthMachine) Extra() {
 
 	// include externale file
 	include := NewBaseWord("include")
+	include.Imm(true)
 	fm.Add(include)
 	includeFunc := func() (e error) {
 		name, empty := fm.NextToken() // grab the next colon
