@@ -46,9 +46,7 @@ func (b *BaseWord) String() string {
 	if b.litteral {
 		s += "|L"
 	}
-	s += string(b.count) + " - "
-	//s += "\ncode > " + b.code
-	//s += "\n"
+	s += fmt.Sprintf(" %d - ", b.count)
 	if len(b.words) > 0 {
 		for _, j := range b.words {
 			s += fmt.Sprintf("%v ", j.Name())
