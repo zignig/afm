@@ -52,17 +52,20 @@ func (fm *ForthMachine) Exec(w Word) (err error) {
 		//fmt.Println("has sub words")
 		//fmt.Println("push this ref onto stack")
 		//fmt.Println(fm.rStack)
+		w, err := fm.pc.Get()
+		fmt.Println("CURRENT WORD ", w)
+		if err != nil {
+			return err
+		}
+		err = fm.pc.inc()
+		if err != nil {
+			return err
+		}
 		err = fm.rStack.Push(fm.pc.wrap())
 		if err != nil {
 			return err
 		}
-		w, err := fm.pc.Get()
-		if err != nil {
-			return err
-		}
-		fm.pc.inc()
 		fm.Exec(w)
-		fmt.Println("<r at the end of will pop upwards")
 	} else {
 		fmt.Println("EXEC")
 		err = w.Do()
