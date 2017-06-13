@@ -33,7 +33,6 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 		// main execution loop goes here
 		case xt := <-fm.XT: // grab an execution token out
 			fm.pc.Set(xt, 0)
-			fmt.Println("nerk> ", &fm.pc, xt)
 			err = fm.Exec(xt)
 		}
 
@@ -48,25 +47,26 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 }
 
 func (fm *ForthMachine) Exec(w Word) (err error) {
+	fmt.Println(&fm.pc, " > exec > ", w.Name())
 	if w.Length() > 0 {
-		fmt.Println(&fm.pc, " > exec > ", w.Name())
-		//fmt.Println("has sub words")
-		//fmt.Println("push this ref onto stack")
-		//fmt.Println(fm.rStack)
-		w, err := fm.pc.Get()
-		fmt.Println("CURRENT WORD ", w)
-		if err != nil {
-			return err
-		}
-		fm.pc.inc()
-		if err != nil {
-			return err
-		}
+		fm.pc.Set(w, 0)
 		err = fm.rStack.Push(fm.pc.wrap())
 		if err != nil {
 			return err
 		}
+		//fmt.Println("has sub words")
+		//fmt.Println("push this ref onto stack")
+		//fmt.Println(fm.rStack)
+		w, err := fm.pc.Get()
+		fmt.Println("CURRENT WORD ", &fm.pc, " --> ", w)
+		if err != nil {
+			return err
+		}
 		fm.Exec(w)
+		fm.pc.inc()
+		if err != nil {
+			return err
+		}
 	} else {
 		fmt.Println("EXEC")
 		err = w.Do()
