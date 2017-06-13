@@ -13,7 +13,11 @@ func (fm *ForthMachine) SetDef() {
 		if e != nil {
 			return e
 		}
-		fm.pc.w = pc.Get(0)
+		w, err := pc.Get(0)
+		if err != nil {
+			return nil
+		}
+		fm.pc.w = w
 		fm.pc.offset = pc.GetVal()
 		return e
 	}

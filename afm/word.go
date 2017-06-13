@@ -1,7 +1,12 @@
 package afm
 
 import (
+	"errors"
 	"fmt"
+)
+
+var (
+	ErrOutOfBounds = errors.New("Out of bounds")
 )
 
 // Base interface
@@ -20,7 +25,7 @@ type Word interface {
 	IsLit() bool
 	Lit(bool)
 	Length() int
-	Get(int) (w Word)
+	Get(int) (w Word, err error)
 	GetVal() (i int)
 	SetVal(i int)
 }
@@ -63,11 +68,11 @@ func (b *BaseWord) SetVal(i int) {
 	b.val = i
 }
 
-func (b *BaseWord) Get(i int) (w Word) {
+func (b *BaseWord) Get(i int) (w Word, err error) {
 	if i < len(b.words) {
-		return b.words[i]
+		return b.words[i], nil
 	}
-	return
+	return nil, ErrOutOfBounds
 }
 
 func (b *BaseWord) Length() (i int) {

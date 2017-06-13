@@ -32,6 +32,7 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 			// random go struct with heaps of goroutines running ?
 		// main execution loop goes here
 		case xt := <-fm.XT: // grab an execution token out
+			fm.pc.Set(xt, 0)
 			err = fm.Exec(xt)
 		}
 
@@ -46,9 +47,26 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 }
 
 func (fm *ForthMachine) Exec(w Word) (err error) {
-	fmt.Print("EXECUTE THIS >")
-	err = w.Do()
-	fmt.Println(w, err)
+	fmt.Println(fm.pc, " > exec > ", w.Name())
+	if w.Length() > 0 {
+		//fmt.Println("has sub words")
+		//fmt.Println("push this ref onto stack")
+		//fmt.Println(fm.rStack)
+		err = fm.rStack.Push(fm.pc.wrap())
+		if err != nil {
+			return err
+		}
+		w, err := fm.pc.Get()
+		if err != nil {
+			return err
+		}
+		fm.pc.inc()
+		fm.Exec(w)
+		fmt.Println("<r at the end of will pop upwards")
+	} else {
+		fmt.Println("EXEC")
+		err = w.Do()
+	}
 	return err
 }
 
