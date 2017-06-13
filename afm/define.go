@@ -9,7 +9,16 @@ func (fm *ForthMachine) SetDef() {
 	fm.Add(popRstack)
 	popRstackFunc := func() (e error) {
 		fm.out("POP R STACK")
-		fm.rStack.Pop()
+		pc, e := fm.rStack.Pop()
+		if e != nil {
+			return e
+		}
+		w, err := pc.Get(0)
+		if err != nil {
+			return nil
+		}
+		fm.pc.w = w
+		fm.pc.offset = pc.GetVal()
 		return e
 	}
 	popRstack.SetExec(popRstackFunc)
@@ -23,7 +32,7 @@ func (fm *ForthMachine) SetDef() {
 		if debug {
 			fm.out("in define")
 		}
-		name, empty := fm.NextToken() // grab the next colon
+		name, empty := fm.NextToken() // grab the next token
 		if empty {
 			return ErrNoMoreTokens
 		}
@@ -47,7 +56,7 @@ func (fm *ForthMachine) SetDef() {
 	lit.Imm(true)
 	lit.SetExec(litFunc)
 
-	// end compule
+	// end compile
 	enddef := NewBaseWord(";")
 	enddef.Imm(true)
 	fm.Add(enddef)
@@ -60,7 +69,7 @@ func (fm *ForthMachine) SetDef() {
 				fm.Add(fm.current)
 			}
 			fm.current.SetCode(fm.raw)
-			//fm.current.Add(popRstack)
+			fm.current.Add(popRstack)
 			fm.current.SetExec(fm.call)
 		}
 		fm.compile = false

@@ -42,11 +42,13 @@ func DefaultOptions() (o Options) {
 var debug bool
 
 type ForthMachine struct {
-	Input  chan string
-	Output chan string
+	Input  chan string // inputs strings
+	Output chan string // Output strings
+	Error  chan string // Error channel
+	XT     chan Word   // execution channel ( run _this_ word )
 	d      *ForthDictionary
 	dStack Stack
-	rStack *Rstack
+	rStack Stack
 
 	prompt    string
 	startword string
@@ -57,7 +59,7 @@ type ForthMachine struct {
 	// completer for readline
 	Complete *Completer
 	// state
-	pc      *PCRef         // program counter
+	pc      PCRef          // program counter
 	raw     string         // raw text input
 	scanner *bufio.Scanner // input text scanner
 	compile bool           // true compiling / false intepreting
@@ -68,10 +70,13 @@ type ForthMachine struct {
 
 func NewForthMachine(o Options) (fm *ForthMachine) {
 	fm = &ForthMachine{
-		Input:     make(chan string, 1024),
+		Input:     make(chan string, 1024), // perhaps this should be a config variable
+		Output:    make(chan string, 1024),
+		Error:     make(chan string, 1024),
+		XT:        make(chan Word, 1024),
 		d:         NewForthDictionary(fm),
 		dStack:    NewBaseStack("dstack", o.rsize),
-		rStack:    NewRstack("rstack", o.dsize),
+		rStack:    NewBaseStack("rstack", o.dsize),
 		startword: o.startword,
 		prompt:    o.Prompt,
 		Options:   o,

@@ -15,65 +15,44 @@ type PCRef struct {
 	offset int
 }
 
+func (pc *PCRef) Set(w Word, offset int) (err error) {
+	w, err = w.Get(0)
+	if err != nil {
+		return err
+	}
+	pc.w = w
+	pc.offset = offset
+	return
+}
+
+func (pc *PCRef) Get() (w Word, err error) {
+	w, err = pc.w.Get(pc.offset)
+	if err != nil {
+		return nil, err
+	}
+	return w, nil
+}
+
 func (pc *PCRef) String() string {
-	a := pc.w.Name() + " | " + string(pc.offset)
+	a := pc.w.Name() + " | " + fmt.Sprintf("%v", pc.offset)
 	return a
 }
 
 func (pc *PCRef) inc() (e error) {
-	if pc.w.Length() < pc.offset {
-		pc.offset++
+	if pc.offset < pc.w.Length() {
+		fmt.Println(pc)
+		pc.offset += 1
 		return
 	}
+	return ErrWordOverflow
+}
+
+// wrap a pc in a word so it can go into the rstack
+func (pc *PCRef) wrap() (w Word) {
+	w = NewBaseWord(pc.w.Name())
+	// set the target word as the first ref
+	w.Add(pc.w)
+	// set the val as the offset
+	w.SetVal(pc.offset)
 	return
-}
-
-type Rstack struct {
-	name  string
-	items []*PCRef
-	pos   int
-	size  int
-}
-
-func NewRstack(name string, depth int) (r *Rstack) {
-	r = &Rstack{
-		name:  name,
-		items: make([]*PCRef, depth),
-		size:  depth,
-		pos:   0,
-	}
-	return
-}
-
-func (bs *Rstack) Show() {
-	if bs.pos == 0 {
-		fmt.Println("R stack empty")
-		return
-	}
-	fmt.Println("R stack")
-	for i := 0; i < bs.pos; i++ {
-		fmt.Println(i, ":", bs.items[i])
-	}
-}
-func (bs *Rstack) Pop() (pcr *PCRef, e error) {
-	if bs.pos > 0 {
-		bs.pos--
-		pcr = bs.items[bs.pos]
-		bs.items[bs.pos] = nil
-		return pcr, nil
-	}
-	return nil, ErrStackEmpty
-}
-
-func (bs *Rstack) Push(pcr *PCRef) (e error) {
-	if bs.pos == bs.size {
-		return ErrStackFull
-	}
-	bs.items[bs.pos] = pcr
-	bs.pos++
-	return nil
-}
-
-func (bs *Rstack) Depth() (d int) {
-	return bs.pos
 }

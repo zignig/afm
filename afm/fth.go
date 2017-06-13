@@ -10,28 +10,68 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 		fm.out(err)
 	}
 	fm.outf("Starting on %s\n", fm.startword)
-	w, err := fm.d.Search(fm.startword)
+	_, err = fm.d.Search(fm.startword)
 	if err != nil {
 		fm.out("boot error :", err)
 		return err
 	}
-	w.Do() // execute the init
+	// this is the main machine loop
 	for {
 		if fm.Exit {
 			exit <- true
 			break
 		}
+
 		select {
-		case line := <-fm.Input:
+		case line := <-fm.Input: // a string of input has arrived
 			fm.GetLine(line)
 			err = fm.Process()
+			// more input sources here
+			// io
+			// nonvolatile memory
+			// random go struct with heaps of goroutines running ?
+		// main execution loop goes here
+		case xt := <-fm.XT: // grab an execution token out
+			fm.pc.Set(xt, 0)
+			err = fm.Exec(xt)
 		}
+
 		if err != nil {
+			// need error handlers here (perhaps dynamic)
 			fmt.Println(err)
 		}
+		fmt.Println("ok")
 	}
 	fm.out("EXIT MACHINE")
 	return
+}
+
+func (fm *ForthMachine) Exec(w Word) (err error) {
+	fmt.Println(&fm.pc, " > exec > ", w.Name())
+	if w.Length() > 0 {
+		fm.pc.Set(w, 0)
+		err = fm.rStack.Push(fm.pc.wrap())
+		if err != nil {
+			return err
+		}
+		//fmt.Println("has sub words")
+		//fmt.Println("push this ref onto stack")
+		//fmt.Println(fm.rStack)
+		w, err := fm.pc.Get()
+		fmt.Println("CURRENT WORD ", &fm.pc, " --> ", w)
+		if err != nil {
+			return err
+		}
+		fm.Exec(w)
+		fm.pc.inc()
+		if err != nil {
+			return err
+		}
+	} else {
+		fmt.Println("EXEC")
+		err = w.Do()
+	}
+	return err
 }
 
 func (fm *ForthMachine) Process() (err error) {
@@ -50,17 +90,19 @@ func (fm *ForthMachine) Process() (err error) {
 			fm.compile = false
 			return err
 		} else {
+			// always execute immediate words
+			if w.IsImm() {
+				if debug {
+					fm.out("imm function ", w.Name())
+				}
+				err = fm.Exec(w)
+				if err != nil {
+					return err
+				}
+				continue
+			}
 			if fm.compile {
 				// compiler
-				if w.IsImm() {
-					if debug {
-						fm.out("imm function ", w.Name())
-					}
-					err = w.Do()
-					if err != nil {
-						return err
-					}
-				}
 				if debug {
 					fm.out("compile", fm.current, tok, w)
 				}
@@ -68,14 +110,9 @@ func (fm *ForthMachine) Process() (err error) {
 					fm.current.Add(w)
 				}
 			} else {
-				// interpreter
-				// set the program counter
-				fm.pc = &PCRef{w: w, offset: 0}
-				// execute the woord
-				err = w.Do()
-				if err != nil {
-					return err
-				}
+				// spool into execution
+				fmt.Println("Spool >", w)
+				fm.XT <- w
 			}
 		}
 	}
@@ -83,33 +120,52 @@ func (fm *ForthMachine) Process() (err error) {
 }
 
 func (fm *ForthMachine) Call() {
-	fmt.Println("Calling function for primary execution")
+	// Calling function for primary execution
+	call := func() (e error) {
+		fmt.Println("CALL")
+		return
+	}
+	fm.call = call
+}
+
+// this structure is wrong , need to call from A hight level loop
+// disabled for now
+func (fm *ForthMachine) OldCall() {
+	// Calling function for primary execution
 	call := func() (e error) {
 		//fmt.Println("push onto return stack")
-		fm.rStack.Push(fm.pc)
+		e = fm.rStack.Push(fm.pc.wrap())
+		if e != nil {
+			return e
+		}
+		// show the rstack
 		fm.rStack.Show()
 		fmt.Print("RUN > ")
 		//push the literal on the stack
-		if fm.pc.w.IsLit() {
-			e = fm.dStack.Push(fm.pc.w)
+		current := fm.pc.w
+		if current.IsLit() {
+			e = fm.dStack.Push(current)
 			if e != nil {
 				return e
 			}
 		}
 		// execute
+		// move the pragram counter to the start of the next word
+		fm.pc.Set(current, 0)
+		// execute
+		e = fm.pc.w.Do()
+		if e != nil {
+			return e
+		}
 		// run through and call words here
 		// will recurse down and back and up
-		fmt.Println(fm.pc.w)
-		fm.pc.inc()
+		fmt.Println(fm.pc)
 		// need to increment the PC counter with bounds checking
-		//fmt.Println("pop return stack")
-
-		newPc, err := fm.rStack.Pop()
-		if err != nil {
-			return err
+		e = fm.pc.inc()
+		if e != nil {
+			return e
 		}
-		//fmt.Println("update program counter")
-		fm.pc = newPc
+		//show the rstack again
 		fm.rStack.Show()
 		return
 	}
