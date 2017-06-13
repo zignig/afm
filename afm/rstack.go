@@ -2,6 +2,7 @@ package afm
 
 import (
 	"errors"
+	"fmt"
 )
 
 var (
@@ -33,13 +34,14 @@ func (pc *PCRef) Get() (w Word, err error) {
 }
 
 func (pc *PCRef) String() string {
-	a := pc.w.Name() + " | " + string(pc.offset)
+	a := pc.w.Name() + " | " + fmt.Sprintf("%v", pc.offset)
 	return a
 }
 
 func (pc *PCRef) inc() (e error) {
 	if pc.offset < pc.w.Length() {
-		pc.offset++
+		fmt.Println(pc)
+		pc.offset += 1
 		return
 	}
 	return ErrWordOverflow

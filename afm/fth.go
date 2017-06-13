@@ -33,6 +33,7 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 		// main execution loop goes here
 		case xt := <-fm.XT: // grab an execution token out
 			fm.pc.Set(xt, 0)
+			fmt.Println("nerk> ", &fm.pc, xt)
 			err = fm.Exec(xt)
 		}
 
@@ -47,8 +48,8 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 }
 
 func (fm *ForthMachine) Exec(w Word) (err error) {
-	fmt.Println(fm.pc, " > exec > ", w.Name())
 	if w.Length() > 0 {
+		fmt.Println(&fm.pc, " > exec > ", w.Name())
 		//fmt.Println("has sub words")
 		//fmt.Println("push this ref onto stack")
 		//fmt.Println(fm.rStack)
@@ -57,7 +58,7 @@ func (fm *ForthMachine) Exec(w Word) (err error) {
 		if err != nil {
 			return err
 		}
-		err = fm.pc.inc()
+		fm.pc.inc()
 		if err != nil {
 			return err
 		}
