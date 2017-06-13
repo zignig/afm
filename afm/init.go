@@ -15,7 +15,7 @@ func (fm *ForthMachine) Init() {
 	// the usual init work
 	init := NewBaseWord("init")
 	initTest := func() (e error) {
-		fm.out("init would go here")
+		fm.out("override ME !! ")
 		return
 	}
 	init.SetExec(initTest)
