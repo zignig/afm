@@ -48,11 +48,10 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 }
 
 func (fm *ForthMachine) Exec(w Word) (err error) {
+	fmt.Print("EXEC>")
+	err = w.Do()
 	if w.Length() > 0 {
 		err = fm.Composite(w)
-	} else {
-		fmt.Print("EXEC>")
-		err = w.Do()
 	}
 	return err
 }
@@ -64,11 +63,15 @@ func (fm *ForthMachine) Composite(w Word) (err error) {
 		if err != nil {
 			return err
 		}
-		fmt.Println("run >", nw)
+		err = nw.Do()
+		if err != nil {
+			return err
+		}
 	}
 	return
 }
 
+//Process the incoming
 func (fm *ForthMachine) Process() (err error) {
 	for {
 		tok, empty := fm.NextToken()

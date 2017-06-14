@@ -28,15 +28,16 @@ func Console(fm *afm.ForthMachine, exit chan bool) {
 		panic(err)
 
 	}
-	defer rl.Close()
 	for {
 		if fm.Exit {
 			fmt.Println("console exit")
 			//			exit <- true
+			rl.Close()
 			return
 		}
 		line, err := rl.Readline()
 		if err != nil {
+			rl.Close()
 			return
 		}
 		rl.SaveHistory(line)
