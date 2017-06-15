@@ -34,6 +34,8 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 		case xt := <-fm.XT: // grab an execution token out
 			fm.pc.Set(xt, 0)
 			err = fm.Exec(xt)
+		case <-exit:
+			break
 		}
 
 		if err != nil {
