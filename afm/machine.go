@@ -29,7 +29,7 @@ func NewOptions(prompt string, startword string, debug bool, rsize int, dsize in
 
 func DefaultOptions() (o Options) {
 	o = Options{
-		Prompt:    "<| ",
+		Prompt:    "\033[31m»\033[0m ",
 		startword: "init",
 		rsize:     32,
 		dsize:     32,
@@ -67,6 +67,7 @@ type ForthMachine struct {
 	token   string         // current token
 	call    execFunc       // exec func that runs all the words inside the words
 }
+
 
 func NewForthMachine(o Options) (fm *ForthMachine) {
 	fm = &ForthMachine{

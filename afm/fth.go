@@ -58,6 +58,7 @@ func (fm *ForthMachine) Exec(w Word) (err error) {
 
 // Execute a composite word
 func (fm *ForthMachine) Composite(w Word) (err error) {
+    // change to  a boolen get loop
 	for i := 0; i < w.Length(); i++ {
 		nw, err := w.Get(i)
 		if err != nil {
