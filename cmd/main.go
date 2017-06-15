@@ -4,6 +4,7 @@ import (
 	"../afm"
 	"fmt"
 	"github.com/chzyer/readline"
+	"io"
 )
 
 func main() {
@@ -12,12 +13,20 @@ func main() {
 	fm := afm.NewForthMachine(options)
 	fm.Init()
 	go fm.Run(exit)
-	go Console(fm, exit)
+	c := NewConsole(fm, exit)
+	go c.Run()
 	<-exit
+	c.Close()
 	fmt.Println("EXITING")
 }
 
-func Console(fm *afm.ForthMachine, exit chan bool) {
+type Console struct {
+	rl   *readline.Instance
+	exit chan bool
+	fm   *afm.ForthMachine
+}
+
+func NewConsole(fm *afm.ForthMachine, exit chan bool) (c *Console) {
 	rl, err := readline.NewEx(&readline.Config{
 		Prompt:                 fm.Options.Prompt,
 		HistoryFile:            "./history",
@@ -28,18 +37,41 @@ func Console(fm *afm.ForthMachine, exit chan bool) {
 		panic(err)
 
 	}
-    defer rl.Close()
+	c = &Console{
+		rl:   rl,
+		exit: exit,
+		fm:   fm,
+	}
+	return c
+}
+
+func (c *Console) Close() {
+	c.rl.Close()
+}
+
+func (c *Console) Run() {
+	rl := c.rl
 	for {
-		if fm.Exit {
-			fmt.Println("console exit")
-			//			exit <- true
-			return
-		}
 		line, err := rl.Readline()
 		if err != nil {
-			return
+			fmt.Println(err)
+			if err == readline.ErrInterrupt {
+				fmt.Println("INTERRUPT")
+			}
+			if err == io.EOF {
+				fmt.Println("EXIT")
+				c.exit <- true
+				break
+			}
 		}
 		rl.SaveHistory(line)
-		fm.Input <- line
+		c.fm.Input <- line
+		if c.fm.Exit {
+			fmt.Println("console exit")
+			rl.Close()
+			c.exit <- true
+			break
+		}
 	}
+	fmt.Println("EXIT CONSOLE")
 }

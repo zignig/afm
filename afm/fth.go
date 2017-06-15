@@ -19,7 +19,6 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 	// this is the main machine loop
 	for {
 		if fm.Exit {
-			exit <- true
 			break
 		}
 
@@ -58,7 +57,7 @@ func (fm *ForthMachine) Exec(w Word) (err error) {
 
 // Execute a composite word
 func (fm *ForthMachine) Composite(w Word) (err error) {
-    // change to  a boolen get loop
+	// change to  a boolen get loop
 	for i := 0; i < w.Length(); i++ {
 		nw, err := w.Get(i)
 		if err != nil {
