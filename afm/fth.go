@@ -26,6 +26,9 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 		case line := <-fm.Input: // a string of input has arrived
 			fm.GetLine(line)
 			err = fm.Process()
+			if err != nil {
+				fmt.Println("PROC ERROR", err)
+			}
 			// more input sources here
 			// io
 			// nonvolatile memory
@@ -34,6 +37,10 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 		case xt := <-fm.XT: // grab an execution token out
 			fm.pc.Set(xt, 0)
 			err = fm.Exec(xt)
+		case <-exit:
+			exit <- true
+			fm.Exit = true
+			break
 		}
 
 		if err != nil {

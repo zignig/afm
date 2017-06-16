@@ -15,15 +15,26 @@ func main() {
 	go fm.Run(exit)
 	c := NewConsole(fm, exit)
 	go c.Run()
-	<-exit
-	c.Close()
+	for {
+		select {
+		case in := <-c.output:
+			fm.Input <- in
+		case <-exit:
+			fmt.Println("MAIN EXIT")
+			fm.Exit = true
+			c.Close()
+			goto exit
+		}
+	}
+exit:
 	fmt.Println("EXITING")
 }
 
 type Console struct {
-	rl   *readline.Instance
-	exit chan bool
-	fm   *afm.ForthMachine
+	output chan string
+	rl     *readline.Instance
+	exit   chan bool
+	fm     *afm.ForthMachine
 }
 
 func NewConsole(fm *afm.ForthMachine, exit chan bool) (c *Console) {
@@ -38,9 +49,10 @@ func NewConsole(fm *afm.ForthMachine, exit chan bool) (c *Console) {
 
 	}
 	c = &Console{
-		rl:   rl,
-		exit: exit,
-		fm:   fm,
+		rl:     rl,
+		exit:   exit,
+		fm:     fm,
+		output: make(chan string, 1),
 	}
 	return c
 }
@@ -61,11 +73,12 @@ func (c *Console) Run() {
 			if err == io.EOF {
 				fmt.Println("EXIT")
 				c.exit <- true
+				rl.Close()
 				break
 			}
 		}
 		rl.SaveHistory(line)
-		c.fm.Input <- line
+		c.output <- line
 		if c.fm.Exit {
 			fmt.Println("console exit")
 			rl.Close()
