@@ -20,10 +20,13 @@ func main() {
 		case in := <-c.output:
 			fm.Input <- in
 		case <-exit:
+			fmt.Println("MAIN EXIT")
+			fm.Exit = true
 			c.Close()
-			break
+			goto exit
 		}
 	}
+exit:
 	fmt.Println("EXITING")
 }
 
@@ -69,8 +72,8 @@ func (c *Console) Run() {
 			}
 			if err == io.EOF {
 				fmt.Println("EXIT")
+				c.exit <- true
 				rl.Close()
-				close(c.exit)
 				break
 			}
 		}
@@ -79,7 +82,7 @@ func (c *Console) Run() {
 		if c.fm.Exit {
 			fmt.Println("console exit")
 			rl.Close()
-			close(c.exit)
+			c.exit <- true
 			break
 		}
 	}
