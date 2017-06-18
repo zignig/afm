@@ -112,6 +112,7 @@ func (fm *ForthMachine) Process() (err error) {
 					fm.out("compile", fm.current, tok, w)
 				}
 				if fm.current != nil {
+                    //TODO add execute before every word
 					fm.current.Add(w)
 				}
 			} else {

@@ -71,7 +71,7 @@ type ForthMachine struct {
 
 func NewForthMachine(o Options) (fm *ForthMachine) {
 	fm = &ForthMachine{
-		Input:     make(chan string, 1024), // perhaps this should be a config variable
+		Input:     make(chan string, 4096), // perhaps this should be a config variable
 		Output:    make(chan string, 1024),
 		Error:     make(chan string, 1024),
 		XT:        make(chan Word, 1024),
