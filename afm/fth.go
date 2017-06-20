@@ -112,13 +112,15 @@ func (fm *ForthMachine) Process() (err error) {
 					fm.out("compile", fm.current, tok, w)
 				}
 				if fm.current != nil {
-                    //TODO add execute before every word
+					//TODO add execute before every word
 					fm.current.Add(w)
 				}
 			} else {
 				// spool into execution
-				fmt.Println("Spool >", w)
-				fm.XT <- w
+				// TODO
+				w.Do()
+				//fmt.Println("Spool >", w)
+				//fm.XT <- w
 			}
 		}
 	}
