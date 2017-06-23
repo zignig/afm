@@ -66,7 +66,7 @@ type ForthMachine struct {
 	current Word           // current word that the machine is currently working on
 	token   string         // current token
 	call    execFunc       // exec func that runs all the words inside the words
-	rpush   execFunc       // push return stack func ( needed inside compiler )
+	rpush   Word           // push return stack func ( needed inside compiler )
 }
 
 func NewForthMachine(o Options) (fm *ForthMachine) {

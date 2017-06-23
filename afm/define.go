@@ -29,7 +29,7 @@ func (fm *ForthMachine) SetDef() {
 		return
 	}
 	pushRstack.SetExec(pushRstackFunc)
-	fm.rpush = pushRstackFunc
+	fm.rpush = pushRstack
 	// add code
 
 	// primary define
