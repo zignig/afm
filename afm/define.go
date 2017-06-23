@@ -23,11 +23,16 @@ func (fm *ForthMachine) SetDef() {
 	}
 	popRstack.SetExec(popRstackFunc)
 
-    pushRstack := NewBaseWord(">r")
-    fm.Add(pushRstack)
-    // add code
+	pushRstack := NewBaseWord(">r")
+	fm.Add(pushRstack)
+	pushRstackFunc := func() (e error) {
+		return
+	}
+	pushRstack.SetExec(pushRstackFunc)
+	fm.rpush = pushRstackFunc
+	// add code
 
-    // primary define
+	// primary define
 	def := NewBaseWord(":")
 	def.Imm(true)
 	fm.Add(def)
