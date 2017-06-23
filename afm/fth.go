@@ -119,6 +119,12 @@ func (fm *ForthMachine) Process() (err error) {
 			} else {
 				// spool into execution
 				// TODO
+				if w.IsLit() {
+					err := fm.dStack.Push(w)
+					if err != nil {
+						return err
+					}
+				}
 				w.Do()
 				//fmt.Println("Spool >", w)
 				//fm.XT <- w
