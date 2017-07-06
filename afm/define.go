@@ -4,6 +4,11 @@ import ()
 
 // put the defining colon in own file
 func (fm *ForthMachine) SetDef() {
+	// flesh this out
+	fm.Add(NewBaseWord("next"))
+	fm.Add(NewBaseWord("enter"))
+	fm.Add(NewBaseWord("execute"))
+	fm.Add(NewBaseWord("exit"))
 	// return stack
 	popRstack := NewBaseWord("<r")
 	fm.Add(popRstack)
@@ -79,7 +84,7 @@ func (fm *ForthMachine) SetDef() {
 				fm.Add(fm.current)
 			}
 			fm.current.SetCode(fm.raw)
-			fm.current.Add(popRstack)
+			fm.current.Add(fm.Get("exit"))
 			fm.current.SetExec(fm.call)
 		}
 		fm.compile = false

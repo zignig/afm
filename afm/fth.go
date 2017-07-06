@@ -113,7 +113,7 @@ func (fm *ForthMachine) Process() (err error) {
 				}
 				if fm.current != nil {
 					//TODO add execute before every word
-					fm.current.Add(fm.rpush)
+					fm.current.Add(fm.Get("execute"))
 					fm.current.Add(w)
 				}
 			} else {

@@ -92,6 +92,11 @@ func (fm *ForthMachine) Add(w Word) (err error) {
 	return fm.d.Add(w)
 }
 
+func (fm *ForthMachine) Get(s string) (w Word) {
+	w, _ = fm.d.Search(s)
+	return
+}
+
 func (fm *ForthMachine) Words() {
 	fm.d.Words()
 }
