@@ -1,0 +1,527 @@
+<html>
+
+  <head>
+    <title>The Heart of Forth</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <link rel=stylesheet href="../figstyle.css" type=text/css>
+
+  </head>
+
+  <body>
+
+<a name="top">
+
+ <table class="menu" align="right">
+   
+      <td class="menu" >
+<h5><A HREF="../byof.htm">BACK</A></h5>
+<h5>On This Page<br>
+<a href="#vchip">The Virtual Chip</a><br>
+<a href="#inner">The Inner Interpreter</a><br>
+<a href="#def">Run-Time Codes for Defining Words</a><br>
+<a href="#run">Literals and Run-Time Words for Control Structures</a><br>
+</h5>
+</td>
+</table>
+<h1>
+The Heart of Forth</h1>
+<p>Forth can be seen as assembly language for a processor which has two stacks,
+the data stack and the return stack. Many processors have only one hardware
+stack, so the other one has to be simulated in software.
+</p>
+
+<h4>
+<a href="mailto:webmaster@figuk.plus.com">Comments, queries and suggestions
+gratefully received</a></h4>
+
+
+<h3>
+Native Code (aka Subroutine Threading)</h3>
+<p>If the hardware return stack is used, then there need be no difference
+between primitive and secondary definitions - it is all native machine
+code. A Forth secondary definition
+</p>
+<p class="next"><code>&nbsp;&nbsp; : EASYAS&nbsp; A B C ;</code>
+</p>
+<p class="next">compiles to <code>CALL A CALL B CALL C </code>no matter what parameters are
+required by A B or C. Each word takes its own parameters from the data
+stack, and places its results there. It is up to the programmer, or the
+calling word, to ensure that the correct parameters are provided.
+</p>
+<p>For speed, the bodies of short primitive definitions can be compiled
+in-line instead of compiling a call. There are many other optimisations
+that can be made - of increasing complexity and decreasing utility - but
+that is a subject I am not qualified to discuss. This method of implementation
+is increasingly popular, especially where Forths are written in C.
+</p>
+<h3>
+The Classic Approach - Threaded Code</h3>
+
+<p>Traditionally a secondary definition such as EASYAS contains a
+<em>code
+field</em> and a <em>data field</em> containing a list of execution tokens
+(xts). Each xt in the list is the address of the code field of one of the
+words in the definition. The advantages are compactness and simplicity.
+It can also be faster than unoptimised native code. There are two main
+varieties:
+</p>
+<dl>
+<dt>
+Direct Threaded</dt>
+
+<dd>
+Each code field contains a machine code fragment. So, in the case of a
+primitive (machine code) definition, the xt is the address of the machine
+code itself</dd>
+
+<dt>
+Indirect Threaded</dt>
+
+<dd>
+Each code field contains a pointer to a native code fragment. With indirect
+code, each definition, of whatever type, has a code field exactly one cell
+wide, and a data field. In the case of a primitive definition, the data
+field contains its machine code, and the code field is simply a pointer
+to it. All types of word have the same format: the code field defines what
+the word does - the data field what it does it with. A word's xt is the
+address of its code field.</dd>
+</dl>
+<p>Direct threaded code is usually faster than indirect threaded, except on
+chips such as the Pentium, which dislike mixing code and data. For these
+threading mechanisms to work, each native code fragment must end in an
+instruction (commonly called NEXT) which advances execution to the next
+fragment.
+</p>
+<hr>
+<a name="vchip">
+
+<H2>The Virtual Chip</H2>
+<p>I am describing operations such as NEXT by use of a pseudo-assembler which
+uses Forthlike postscript notation. This allows me to show what is happening
+without reference to extra hypothetical registers. I am using the following
+conventions:
+</p>
+<ul>
+<li>
+The data stack, the return stack, and xts all have the same width - one
+<em>cell</em>, typically 16 or 32 bits. (This is not strictly necessary -
+so long as an xt will fit on both the data and return stacks, the data
+stack may be wider to allow it to address more space - but it makes for
+a simpler model)</li>
+
+<li>
+<em>register</em> means the value held in that register</li>
+
+<li>
+[<em>xxxx</em>] means the value held at address xxxx</li>
+
+<li>
+<em>xxxx</em> TO <em>register</em> means store xxxx in the register</li>
+
+<li>
+<em>xxxx</em> +TO <em>register</em> means increment by that amount</li>
+
+<li>
+<em>xxxx</em> PUSH <em>register</em> the register acts as a stack, push xxx
+onto it</li>
+
+<li>
+POP <em>register</em> means the value popped from the stack</li>
+</ul>
+
+<h3>
+The Registers</h3>
+<p>Here are the registers of the virtual chip, listed in order of importance
+as regards speed:
+</p>
+<dl>
+<dt>
+<b>PSP</b> The Parameter Stack Pointer</dt>
+
+<dd>
+Gives access to the data stack. You need a minimum of 32 cells for the
+stack</dd>
+
+<dt>
+<b>IP</b> The Instruction Pointer</dt>
+<dd>
+Points to the next exection token to be executed</dd>
+
+<dt>
+<b>RSP</b> The Return Stack Pointer</dt>
+<dd>
+You need a minimum of 24 cells for the return stack. If you can, allot
+at least 64 cells for each stack and use the fastest memory you have.</dd>
+
+<dt>
+<b>W</b> The Working Register</dt>
+
+<dd>
+Provides an address from which the data field of the currently executing
+word can be found. A primitive may overwrite W with impunity, but should
+preserve all the other virtual registers. My pseudocode assumes the address
+held in W to be the current xt, and that the data field immediately follows
+the code field, but neither of these are requirements. I use the pseudo-op
+DATA to hide the details how the data field address is obtained.</dd>
+
+<dt>
+<b>TOS</b> Top of Stack Cache</dt>
+
+<dd>
+If you can spare a register (hereafter called TOS), cacheing the top value
+on the stack makes many primitive definitions faster. Using TOS can save
+a PUSH PSP and a POP PSP on definitions that use the stack but leave it
+balanced, at the expense of an extra register move when adding items. It's
+generally not worthwhile trying to cache more than one stack item. For
+clarity, I will not be using TOS in my pseudocode of the inner interpreter.</dd>
+
+<dt>
+<b>UP</b> The User Pointer</dt>
+
+<dd>
+Only needed on multi-tasking Forths, it holds the base address for variables
+local to each task</dd>
+</dl>
+<p>Only a fraction of the available native opcodes are needed to build a Forth
+system, and it is a simple task, once you have Forth, to write an assembler
+that will implement it for another system.
+</p>
+<p>The best threading method and register assignments for a particular
+system can only be decided by coding some primitives and timing them. The
+most frequently used ones are:
+</p>
+<p class="next"><code>NEXT, ENTER, EXIT, DOVAR, DOCON, LIT,& @, !, +, BRANCH, ?BRANCH, SWAP, &gt;R, R&gt;.</code>
+</p>
+<p>For a more technical approach, with examples for several chips, see Brad
+Rodriguez's <a href="http://www.zetetics.com/bj/papers/">Moving Forth</a>.
+The Forth model discussed there is based to a large extent on his <a href="../4thres/systems.htm#CamelForth">CamelForth</a>.
+Brad also recommends benchmarking <code>EXECUTE, OVER, ROT, 0=, +!</code> and <code>DODOES</code>.
+
+</p>
+
+<hr>
+<a name="inner">
+
+<H2>The Inner Interpreter</H2>
+
+<h3>
+	NEXT ENTER EXECUTE EXIT</h3>
+	
+	<dl>
+	<dt>
+	NEXT</dt>
+	
+	<dd>
+	hands control from one machine code fragment to the next. Because it is
+	used so often, it is vital to optimise it for speed, so it is usually compiled
+	in-line, rather than as a jump to a central routine.</dd>
+	
+	<dt>
+	ENTER</dt>
+	
+	<dd>
+	the machine code executed by the xt of a secondary definition (compiled
+	by <b>: "colon"</b> et al.) ENTER, like NEXT, is a code fragment, not a
+	primitive</dd>
+	
+	<dt>
+	EXECUTE</dt>
+	
+	<dd>
+	Forth primitive. Executes the xt on the parameter stack, which can belong
+	to any type of Forth word. Because EXECUTE finishes with a JUMP, it does
+	not need NEXT, which is supplied by whatever it executes.</dd>
+	
+	<dt>
+	EXIT</dt>
+	
+	<dd>
+	Forth primitive. Returns from a secondary definition. It is compiled by
+	<b>; "semicolon"</b></dd>
+	</dl>
+	<h3>
+	Indirect Code Version</h3>
+	<p>Assuming the data field directly follows the code field, DATA is <code>W
+	CELL +</code>
+	</p>
+	<p class="next">NEXT&nbsp;&nbsp;&nbsp;&nbsp;<code>[IP] TO W CELL +TO IP </code>(note the order!!)&nbsp; <code>[W] JUMP</code>
+	</p>
+	
+	<p class="next">EXECUTE&nbsp;&nbsp;&nbsp;&nbsp; <code>POP PSP TO W&nbsp;&nbsp; [W] JUMP</code>
+	</p>
+	<p class="next">ENTER&nbsp;&nbsp;&nbsp;&nbsp;<code>IP PUSH RSP&nbsp; DATA TO IP NEXT</code>
+	</p>
+	
+	<p class="next">EXIT&nbsp;&nbsp;&nbsp;&nbsp;<code>POP RSP TO IP&nbsp; NEXT</code>
+	</p>
+	
+	
+	
+	<p>Note how both NEXT and EXECUTE need to update W so the next word to execute
+	can find the right data field address if it needs to.
+	</p>
+	<h3>
+	Direct Threaded Versions</h3>
+	<p>There are two different flavours of direct threaded code: in one the code
+	field of a secondary definition contains <code>JUMP ENTER</code> and in the
+	other it contains <code>CALL ENTER</code>.
+	</p>
+	<h4>
+	JUMP version</h4>
+	<p>As with indirect code, W holds the code field address. DATA now has to
+	increment past the width of the opcode JUMP xxxx to find the data field
+	address. The only other real difference to the indirect threaded interpreter
+	is that NEXT and EXECUTE now jump directly to W, not to the address pointed
+	to by it.
+	</p>
+	 <p class="next">NEXT<code>&nbsp;&nbsp;&nbsp;&nbsp;[IP] TO W&nbsp;&nbsp; CELL +TO IP&nbsp; W JUMP</code>
+	 </p>
+	
+	<p class="next">EXECUTE<code>&nbsp;&nbsp;&nbsp;&nbsp; POP PSP TO W&nbsp; W JUMP</code>
+	</p>
+	<p class="next">ENTER<code>&nbsp;&nbsp;&nbsp;&nbsp; IP PUSH RSP&nbsp;&nbsp; DATA TO IP&nbsp; NEXT</code>
+	</p>
+	
+	<p class="next">EXIT<code>&nbsp;&nbsp;&nbsp;&nbsp;POP RSP TO IP&nbsp; NEXT&nbsp;</code>
+	</p>
+	
+
+	
+	<h4>
+	CALL Version</h4>
+	<p>With the direct threaded version using CALL ENTER , DATA can pop the required
+	address from the hardware stack (where it has be pushed by the CALL), and
+	does not need to reference W at all. Therefore, NEXT and EXECUTE do not
+	need to update it either. Whichever method is chosen, it is vital to be
+	consistent. DATA should work for any word that needs its data field address,
+	whether that word has been invoked by NEXT or EXECUTE. So if DATA depends
+	on the action of CALL, then <em>every</em> class of word that requires access
+	to its own data should have a code field of the form CALL xxxx. ENTER and
+	EXIT are unchanged, except of course that they use the new NEXT.
+	</p>
+	<p class="next">NEXT<code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [IP] CELL +TO IP JUMP&nbsp;</code>
+	</p>
+	<p class="next">(this may be a single opcode on some chips)
+	</p>
+	
+	<p class="next">EXECUTE<code>&nbsp;&nbsp; POP PSP JUMP</code> (likewise)
+	</p>
+	
+	
+	<h3>
+	Native Code Version</h3>
+	<p>Strictly speaking, native code Forths do not have an inner interpreter;
+	it is all machine code, and NEXT is superfluous to requirements. However,
+	a distinction may be made between "primitives" (compiled in-line) and "secondaries"
+	for which a CALL is compiled. Seen this way, IP is the hardware program
+	counter, and RSP the hardware call stack, and the "inner interpreter" looks
+	like this:
+	</p>
+	<p class="next">ENTER&nbsp;&nbsp;&nbsp;&nbsp; Hardware CALL.
+	</p>
+	<p class="next">(Compiled in-line in the calling definition - there is no code field as such in a colon definition)
+	</p>
+	
+	<p class="next">EXIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Hardware Return from Subroutine
+	</p>
+	
+	<p class="next">NEXT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Not needed except to end a "secondary", where it is identical to EXIT
+	</p>
+	
+	
+	<p>Although colon definitions have no code and data field, the terms do make
+	sense for other "secondary" words, so EXECUTE and DATA are the same as
+	for the CALL version of direct threaded code.
+	</p>
+	<hr>
+	<a name="def">
+	
+	<H2>Run-Time Codes for Defining Words</H2>
+	
+	<h3>
+	DOCON DOVAR DOUSER DODOES></h3>
+	<p>Like ENTER, these are not Forth primitives, but the machine code that defines
+	the actions of different types of Forth word.
+	</p>
+	<p class="next">DOCON&nbsp;&nbsp;&nbsp; <code>[DATA] PUSH PSP NEXT</code>
+	</p>
+	
+	<p>DOCON is compiled by CONSTANT - the data field holds constant's value.
+	<b>NB</b> Some Forths may compile constants as literals. The values of
+	these constants cannot be changed once they are defined.
+	</p>
+	<p class="next">DOVAR&nbsp;&nbsp;&nbsp;&nbsp; <code>DATA PUSH PSP NEXT</code>
+	</p>
+	
+	<p>DOVAR is compiled by CREATE and VARIABLE. Again, some Forths may compile
+	the address of a variable as a literal.
+	</p>
+	<p class="next">DOUSER&nbsp;&nbsp; <code>[DATA] UP + PUSH PSP NEXT</code>
+	</p>
+	
+	
+	<p>DOUSER is compiled by USER Variables of which every task in a multi-tasking
+	Forth has its own copies, in an area ofmemory pointed to by UP. The data
+	field of a USER holds its offset from the start of that area.
+	</p>
+	<p class="next">DODOES><code>&nbsp;&nbsp; IP PUSH RSP<br> &nbsp;&nbsp;&nbsp;POP hardware call stack TO IP<br>
+	&nbsp;&nbsp;&nbsp;DATA PUSH PSP NEXT</code>
+	</p>
+		
+	<p>DODOES> is perhaps the most subtle piece of code in Forth, associating
+	a data field with an already defined high-level action. This is achieved
+	by prefixing the body of the high-level definition with the native code
+	fragment CALL DODOES> instead of the normal code field for a colon definition.
+	The 'child' word (to which the data field belongs) invokes that instance
+	of CALL DODOES just as it would any other machine code fragment. 
+	</p>
+	<p>Thus,
+	if CALL DODOES is at address xxxx, the code field of the child word contains
+	xxxx if it is indirect threaded, CALL xxxx if it is native code, and either
+	CALL xxxx or JUMP xxxx if it is direct threaded.
+	</p>
+<p>The first part of DODOES> is analogous to ENTER, with the address of
+	the thread popped from the hardware call stack, where it had been pushed
+	by the call to DODOES>. The high-level code expects the data field address
+	to be on the parameter stack, so that is pushed before NEXT allows execution
+	to start. Since the address pushed by the extra call has been removed by
+	that stage, the normal DATA finds the correct address for the child's data
+	field. Note that the pseudocode assumes that the hardware stack pointer
+	is <em>not</em> one of the virtual registers. If it is, the code will need
+	to be modified. With native code, where the RSP is the hardware call stack,
+CALL DODOES can simply be replaced by the sequence DATA PUSH PSP.
+</p>
+<hr>
+<a name="run">
+
+<H2>Literals and Run-Time Words for Control Structures</H2>
+
+<h3>
+LIT BRANCH ?BRANCH (DO) (?DO) (+LOOP) (LOOP) (LEAVE)</h3>
+<p>The compiler for classic threaded code is absurdly simple. All it does
+is add the xt of each word it finds to the current definition. Any more
+complex action is dealt with by the fact that some words it encounters
+are not compiled in this way, but executed instead. For example, <code> ; </code>
+compiles EXIT and then turns off the compiler. Such words are called <b>immediate</b>
+words. The following <b>run-time</b> words are compiled by the immediate
+words which build literals and control structures. The immediate words
+lay down the structure - the run-time words define what to do with it.
+</p>
+<h3>
+Common code fragments</h3>
+
+<p class="next">branch&nbsp;&nbsp; <code>[IP] TO IP</code>&nbsp;(jump to in-line address)
+</p>
+<p class="next">(or <code>[IP] +TO IP</code> if in-line address is relative)
+</p>
+<p class="next">skip&nbsp;&nbsp;<code>CELL +TO IP</code>&nbsp;&nbsp; (skip in-line address)
+</p>
+
+
+<p class="next"><b>NB</b> Native code may in-line runtime words. In such cases IP will
+<i>not</i> point directly to the in-line value, and adjustment has to be
+made for the size of the code itself
+</p>
+ <p class="next">LIT<code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [IP] PUSH PSP skip NEXT
+ </code></p>
+
+<p class="next">BRANCH<code>&nbsp;&nbsp; branch NEXT</code>
+</p>
+<p class="next">?BRANCH&nbsp;&nbsp; <code>POP PSP&nbsp; 0= IF skip ELSE branch THEN NEXT</code>
+</p>
+
+
+
+<p>LIT is compiled by literals, to push the in-line value that follows it
+onto the stack. BRANCH is compiled by the control structure words AGAIN,
+ELSE and REPEAT - ?BRANCH by IF and UNTIL.
+</p>
+<h3>
+Counted Loops</h3>
+<p>These have got a little bit baroque in Standard Forth, having to support
+the following features:
+</p>
+<ul>
+<li>
+DO...LOOP can count all the numbers from zero up to the unsigned maximum
+possible in one cell, therefore 0 0 DO ... iterates max+1 times, and ?DO
+is needed instead of DO for a loop that iterates zero times.</li>
+
+<li>
+DO or ?DO work with both LOOP and +LOOP, as do I and J</li>
+
+<li>
+LEAVE exits the loop immediately after the next LOOP or +LOOP</li>
+
+<li>
++LOOP can take either positive or negative increments. In fact, it can
+vary between positive and negative in the one loop.</li>
+
+<li>
+LEAVE exits the loop immediately after the next LOOP or +LOOP</li>
+</ul>
+<p>All of this means that testing for termination is tricky. The test is for
+crossing the boundary between the limit and the limit-1 <i>from either
+direction</i>, so negative-going +LOOPs execute one more time than you
+might expect. The test is made by offsetting the loop counter by HALFMAX
+(cell with only the high bit set) - limit, so that overflow is signalled
+(the sign of the high bit changes) when it terminates.
+</p>
+<p>The behaviour of ?DO and LEAVE has led to some strange implementations.
+For example, F83 DO pushes the exit address of the loop on the return stack
+so that it can be picked up and used by LEAVE, and it does so whether that
+particular loop has a LEAVE or not. This version is more rational. LEAVE
+compiles its own exit address and doesn't mess with the return stack.
+</p>
+<h3>
+Pseudocode Assumptions</h3>
+<p>The return stack grows downwards, so [RSP] is the top item, [RSP 1 CELLS
++] the next, and so on. It does not matter which way it grows - use whichever
+is more convenient. You will soon see that it is useful for RSP and PSP
+to have indexing capability!.
+</p>
+<h3>
+Common Code Fragments</h3>
+
+<p class="next">setloop <code>( - start value in W, limit value on stack)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; HALFMAX POP PSP -&nbsp; PUSH RSP&nbsp;&nbsp; (amount of offset)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;W [RSP] + PUSH RSP&nbsp;&nbsp; (adjusted start value)</code>
+</p>
+
+<p class="next">unloop <code>( - remove loop parameters)&nbsp; 2 CELLS +TO RSP</code>
+
+</p>
+
+<h3>
+The Runtime Words</h3>
+
+<p class="next">(DO)<code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PSP POP TO W setloop NEXT</code>
+</p>
+<p class="next">(?DO)&nbsp;&nbsp;&nbsp;&nbsp; <code>POP PSP TO W<br>
+&nbsp;&nbsp; [PSP] W = IF&nbsp;&nbsp;&nbsp; (does start=limit?)<br>
+&nbsp;&nbsp;&nbsp; POP PSP TO W branch (do not enter loop)<br>
+&nbsp; ELSE setloop skip THEN<br>
+&nbsp; NEXT</code>
+</p>
+
+<p class="next">(LOOP)<code>&nbsp;&nbsp;&nbsp; 1 +TO [RSP] overflow? IF<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (end of count)<br>
+&nbsp; unloop skip ELSE branch THEN<br>
+&nbsp; NEXT<br></code>
+</p>
+
+<p class="next">(+LOOP)&nbsp;&nbsp; <code>POP PSP +TO [RSP] overflow? IF (end of count)<br>
+&nbsp; unloop skip ELSE branch THEN<br>
+&nbsp; NEXT</code>
+
+</p>
+<p class="next">(LEAVE)<code>&nbsp;&nbsp; unloop branch NEXT</code>
+</p>
+
+<p>The corresponding immediate words ?DO, LOOP, +LOOP and LEAVE all compile
+a branch address. ?DO and LEAVE branch past the end of the loop; LOOP and
++LOOP branch back to the start.
+</p>
+
+ </body>
+ </html>
