@@ -4,6 +4,8 @@ import ()
 
 // put the defining colon in own file
 func (fm *ForthMachine) SetDef() {
+	call := NewBaseWord("call")
+	fm.Add(call)
 	// flesh this out
 	fm.Add(NewBaseWord("next"))
 	fm.Add(NewBaseWord("enter"))
