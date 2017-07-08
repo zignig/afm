@@ -4,13 +4,32 @@ import ()
 
 // put the defining colon in own file
 func (fm *ForthMachine) SetDef() {
+    // inner interpreter words
+
 	call := NewBaseWord("call")
 	fm.Add(call)
-	// flesh this out
-	fm.Add(NewBaseWord("next"))
-	fm.Add(NewBaseWord("enter"))
-	fm.Add(NewBaseWord("execute"))
-	fm.Add(NewBaseWord("exit"))
+    callFunc := func() (e error){
+        fm.out("CALLER")
+        return
+    }
+    call.SetExec(callFunc)
+
+	exit := NewBaseWord("exit")
+	fm.Add(exit)
+    exitFunc := func() (e error){
+        fm.out("EXIT")
+        return
+    }
+    exit.SetExec(exitFunc)
+
+	next := NewBaseWord("next")
+	fm.Add(next)
+    nextFunc := func() (e error){
+        fm.out("NEXT")
+        return
+    }
+    next.SetExec(nextFunc)
+
 	// return stack
 	popRstack := NewBaseWord("<r")
 	fm.Add(popRstack)
