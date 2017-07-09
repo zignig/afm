@@ -54,7 +54,8 @@ func (fd *ForthDictionary) dump() {
 		}
 		val := current.value.Dump()
 		if len(val) > 0 {
-			fd.fm.out(val)
+			//fd.fm.out(val)
+            fd.fm.out(current)
 		}
 		current = current.prev
 	}

@@ -16,10 +16,6 @@ type PCRef struct {
 }
 
 func (pc *PCRef) Set(w Word, offset int) (err error) {
-	w, err = w.Get(0)
-	if err != nil {
-		return err
-	}
 	pc.w = w
 	pc.offset = offset
 	return

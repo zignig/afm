@@ -17,7 +17,8 @@ type Word interface {
 	Name() (s string)
 	Do() (e error)
 	Add(Word)
-	SetExec(f execFunc)
+	SetExec(f execFunc) // for internal works
+	SetExecExt (f execFunc) // for defined words
 	SetCode(code string)
 	Dump() (code string)
 	IsImm() bool
@@ -28,12 +29,16 @@ type Word interface {
 	Get(int) (w Word, err error)
 	GetVal() (i int)
 	SetVal(i int)
+    IsInternal() bool
+    Internal(bool)
+
 }
 
 type BaseWord struct {
 	name      string
 	immediate bool
 	litteral  bool
+    internal bool
 	code      string
 	words     []Word
 	count     int
@@ -87,6 +92,14 @@ func (b *BaseWord) SetCode(code string) {
 	b.code = code
 }
 
+func (b *BaseWord) Internal(i bool) {
+	b.internal= i
+}
+
+func (b *BaseWord) IsInternal() bool {
+	return b.internal
+}
+
 func (b *BaseWord) Lit(i bool) {
 	b.litteral = i
 }
@@ -105,6 +118,12 @@ func (b *BaseWord) IsImm() bool {
 
 func (b *BaseWord) SetExec(f execFunc) {
 	b.exec = f
+    b.internal = true
+}
+
+func (b *BaseWord) SetExecExt(f execFunc) {
+	b.exec = f
+    b.internal = false
 }
 
 func (b *BaseWord) Name() (s string) {

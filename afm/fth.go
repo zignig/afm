@@ -29,10 +29,10 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 			if err != nil {
 				fmt.Println("PROC ERROR", err)
 			}
-			// more input sources here
-			// io
-			// nonvolatile memory
-			// random go struct with heaps of goroutines running ?
+		// more input sources here
+		// io
+		// nonvolatile memory
+		// random go struct with heaps of goroutines running ?
 		// main execution loop goes here
 		case xt := <-fm.XT: // grab an execution token out
 			fm.pc.Set(xt, 0)
@@ -53,29 +53,39 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 	return
 }
 
+// calling composite word
+func (fm *ForthMachine) Call() {
+	// Calling function for primary execution
+	call := func() (e error) {
+        for {
+		fmt.Println("CALL")
+        fmt.Println(fm.pc)
+        currentWord , e  := fm.pc.Get()
+        fmt.Println(e,fm.pc,currentWord)
+        if e !=nil {
+            return e
+        }
+        e = currentWord.Do()
+        // if it is a internal word increment the pc
+        if currentWord.IsInternal() {
+            fm.pc.inc()
+        }
+        if e != nil {
+            if e == ErrExit {
+                break
+            }
+            return e
+        }
+    }
+        return e
+	}
+	fm.call = call
+}
+
 func (fm *ForthMachine) Exec(w Word) (err error) {
 	fmt.Print("EXEC>")
 	err = w.Do()
-	if w.Length() > 0 {
-		err = fm.Composite(w)
-	}
 	return err
-}
-
-// Execute a composite word
-func (fm *ForthMachine) Composite(w Word) (err error) {
-	// change to  a boolen get loop
-	for i := 0; i < w.Length(); i++ {
-		nw, err := w.Get(i)
-		if err != nil {
-			return err
-		}
-		err = nw.Do()
-		if err != nil {
-			return err
-		}
-	}
-	return
 }
 
 //Process the incoming
@@ -83,7 +93,7 @@ func (fm *ForthMachine) Process() (err error) {
 	for {
 		tok, empty := fm.NextToken()
 		if empty {
-			return
+			break
 		}
 		w, err := fm.d.Search(tok)
 		if debug {
@@ -125,20 +135,14 @@ func (fm *ForthMachine) Process() (err error) {
 						return err
 					}
 				}
-				w.Do()
-				//fmt.Println("Spool >", w)
-				//fm.XT <- w
+                fm.pc.Set(w,0)
+				err  = w.Do()
+                if err != nil {
+                    return err
+                }
 			}
 		}
 	}
 	return nil
 }
 
-func (fm *ForthMachine) Call() {
-	// Calling function for primary execution
-	call := func() (e error) {
-		fmt.Println("CALL")
-		return
-	}
-	fm.call = call
-}
