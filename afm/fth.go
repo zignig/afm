@@ -2,6 +2,7 @@ package afm
 
 import (
 	"fmt"
+	"time"
 )
 
 // Run is the main forth machine loop
@@ -57,27 +58,30 @@ func (fm *ForthMachine) Run(exit chan bool) (e error) {
 func (fm *ForthMachine) Call() {
 	// Calling function for primary execution
 	call := func() (e error) {
-        for {
-		fmt.Println("CALL")
-        fmt.Println(fm.pc)
-        currentWord , e  := fm.pc.Get()
-        fmt.Println(e,fm.pc,currentWord)
-        if e !=nil {
-            return e
-        }
-        e = currentWord.Do()
-        // if it is a internal word increment the pc
-        if currentWord.IsInternal() {
-            fm.pc.inc()
-        }
-        if e != nil {
-            if e == ErrExit {
-                break
-            }
-            return e
-        }
-    }
-        return e
+		for {
+			fm.rStack.Show()
+			fmt.Println("CALL")
+			time.Sleep(500 * time.Millisecond)
+			fmt.Println(fm.pc)
+			currentWord, e := fm.pc.Get()
+			fmt.Println(e, fm.pc, currentWord)
+			if e != nil {
+				return e
+			}
+			fm.pc.inc()
+			e = currentWord.Do()
+			// if it is a internal word increment the pc
+			if currentWord.IsInternal() {
+				fm.pc.inc()
+			}
+			if e != nil {
+				if e == ErrExit {
+					break
+				}
+				return e
+			}
+		}
+		return e
 	}
 	fm.call = call
 }
@@ -135,14 +139,13 @@ func (fm *ForthMachine) Process() (err error) {
 						return err
 					}
 				}
-                fm.pc.Set(w,0)
-				err  = w.Do()
-                if err != nil {
-                    return err
-                }
+				fm.pc.Set(w, 0)
+				err = w.Do()
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
 	return nil
 }
-

@@ -1,25 +1,25 @@
 package afm
 
 import (
-    "fmt"
-    "errors"
+	"errors"
+	"fmt"
 )
 
 var (
 	ErrExit = errors.New("RUN EXIT")
 )
+
 // put the defining colon in own file
 func (fm *ForthMachine) SetDef() {
-    // inner interpreter words
-
+	// inner interpreter words
 
 	next := NewBaseWord("next")
 	fm.Add(next)
-    nextFunc := func() (e error){
-        fm.out("NEXT")
-        return
-    }
-    next.SetExec(nextFunc)
+	nextFunc := func() (e error) {
+		fm.out("NEXT")
+		return
+	}
+	next.SetExec(nextFunc)
 
 	// return stack
 	popRstack := NewBaseWord("<r")
@@ -43,7 +43,9 @@ func (fm *ForthMachine) SetDef() {
 	pushRstack := NewBaseWord(">r")
 	fm.Add(pushRstack)
 	pushRstackFunc := func() (e error) {
-        fmt.Println("PUSH R STACK")
+		fmt.Println("PUSH R STACK")
+		w := fm.pc.wrap()
+		fm.rStack.Push(w)
 		return
 	}
 	pushRstack.SetExec(pushRstackFunc)
@@ -51,22 +53,24 @@ func (fm *ForthMachine) SetDef() {
 
 	call := NewBaseWord("call")
 	fm.Add(call)
-    callFunc := func() (e error){
-        fm.out("CALLER")
-        e = fm.pc.inc()
-        pushRstack.Do()
-        return e
-    }
-    call.SetExecExt(callFunc) // is external ( sort of  )
+	callFunc := func() (e error) {
+		fm.out("CALLER")
+		pushRstack.Do()
+		e = fm.pc.inc()
+		return e
+	}
+	call.SetExecExt(callFunc) // is external ( sort of  )
 
 	exit := NewBaseWord("exit")
 	fm.Add(exit)
-    exitFunc := func() (e error){
-        fm.out("EXIT")
-        return ErrExit
-    }
+	exitFunc := func() (e error) {
+		fm.out("EXIT")
+		popRstack.Do()
+		fm.pc.inc()
+		return ErrExit
+	}
 
-    exit.SetExec(exitFunc)
+	exit.SetExec(exitFunc)
 	// primary define
 	def := NewBaseWord(":")
 	def.Imm(true)
